@@ -1,4 +1,4 @@
-// Fun Assistant - Complete Script with Mod Chat v2
+// Fun Assistant - Complete Script
 (function() {
   if(document.getElementById("funGuiBox")) document.getElementById("funGuiBox").remove();
   var gui = document.createElement("div");
@@ -668,9 +668,7 @@
     createButton("Settings", function() { alert("Settings panel coming soon!") })
   ];
 
-  // MOD BUTTONS ARRAY - MOD CHAT IS FIRST!
   var modButtons = [
-    createButton("Mod Chat", openModChatPanel),
     createButton("Mute Animations", muteAnimations),
     createButton("Highlight Sections", highlightSections),
     createButton("Freeze Inputs", freezeInputs),
@@ -678,9 +676,7 @@
     createButton("Quick Copy Elements", quickCopyElements),
     createButton("Toggle Images", toggleImages),
     createButton("Theme Override", themeOverride)
-  ];
-
-  var ownerButtons = [
+  ];var ownerButtons = [
     createButton("Owner Notes", ownerNotes),
     createButton("Toggle Panels", togglePanels),
     createButton("Inspect Elements", function() { document.querySelectorAll("*").forEach(e => e.style.outline = "2px solid red"); alert("Elements outlined"); }),
@@ -770,54 +766,4 @@
 
   showPasswordScreen();
 
-})(); isDragging = false;
-    h.onmousedown = function(e) {
-      isDragging = true;
-      offsetX = e.clientX - chatPanel.offsetLeft;
-      offsetY = e.clientY - chatPanel.offsetTop;
-      document.body.style.userSelect = "none";
-    };
-    document.onmousemove = function(e) {
-      if(isDragging) {
-        chatPanel.style.left = (e.clientX - offsetX) + "px";
-        chatPanel.style.top = (e.clientY - offsetY) + "px";
-      }
-    };
-    document.onmouseup = function() {
-      isDragging = false;
-      document.body.style.userSelect = "";
-    };
-    const obs = new ResizeObserver(() => {
-      if(chatPanel) chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    });
-    obs.observe(gui);
-    chatPanel._observer = obs;
-  }
-
-  // THIS IS THE MOD CHAT FUNCTION - LOOK HERE!
-  function openModChatPanel() {
-    if(chatPanel) return;
-    chatPanel = document.createElement("div");
-    chatPanel.id = "funChatBox";
-    chatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
-    var t = document.createElement("strong");
-    t.textContent = "🛡️ Mod Chat";
-    h.appendChild(t);
-    var close = createButton("×", function() {
-      chatPanel.remove();
-      chatPanel = null;
-    });
-    close.style.background = "none";
-    close.style.border = "none";
-    close.style.fontSize = "18px";
-    h.appendChild(close);
-    chatPanel.appendChild(h);
-    var iframe = document.createElement("iframe");
-    iframe.src = "https://organizations.minnit.chat/688636102211189/c/Mod?embed";
-    iframe.style.cssText = "border:none;width:100%;height:300px;";
-    chatPanel.appendChild(iframe);
-    document.body.appendChild(chatPanel);
-    chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    let offsetX = 0, offsetY = 0,
+})();

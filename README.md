@@ -6,4 +6,4 @@
 
 ## Mod Applications are open now!
 
-Fill out the application form here: [https://forms.gle/KJg51RGpiaRPktT49](Mod Apps)
+Fill out the application form here: [https://forms.gle/KJg51RGpiaRPktT49](Applications)

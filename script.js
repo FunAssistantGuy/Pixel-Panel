@@ -1,4 +1,4 @@
-// Fun Assistant - Complete Script with Mod Chat
+// Fun Assistant - Complete Script with Mod Chat v2
 (function() {
   if(document.getElementById("funGuiBox")) document.getElementById("funGuiBox").remove();
   var gui = document.createElement("div");

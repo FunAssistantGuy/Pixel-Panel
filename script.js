@@ -1,4 +1,4 @@
-// Fun Assistant - Complete Script
+// Fun Assistant - Complete Script with Mod Chat
 (function() {
   if(document.getElementById("funGuiBox")) document.getElementById("funGuiBox").remove();
   var gui = document.createElement("div");
@@ -668,6 +668,7 @@
     createButton("Settings", function() { alert("Settings panel coming soon!") })
   ];
 
+  // MOD BUTTONS ARRAY - MOD CHAT IS FIRST!
   var modButtons = [
     createButton("Mod Chat", openModChatPanel),
     createButton("Mute Animations", muteAnimations),
@@ -769,10 +770,31 @@
 
   showPasswordScreen();
 
-})();gui);
+})(); isDragging = false;
+    h.onmousedown = function(e) {
+      isDragging = true;
+      offsetX = e.clientX - chatPanel.offsetLeft;
+      offsetY = e.clientY - chatPanel.offsetTop;
+      document.body.style.userSelect = "none";
+    };
+    document.onmousemove = function(e) {
+      if(isDragging) {
+        chatPanel.style.left = (e.clientX - offsetX) + "px";
+        chatPanel.style.top = (e.clientY - offsetY) + "px";
+      }
+    };
+    document.onmouseup = function() {
+      isDragging = false;
+      document.body.style.userSelect = "";
+    };
+    const obs = new ResizeObserver(() => {
+      if(chatPanel) chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
+    });
+    obs.observe(gui);
     chatPanel._observer = obs;
   }
 
+  // THIS IS THE MOD CHAT FUNCTION - LOOK HERE!
   function openModChatPanel() {
     if(chatPanel) return;
     chatPanel = document.createElement("div");
@@ -798,24 +820,4 @@
     chatPanel.appendChild(iframe);
     document.body.appendChild(chatPanel);
     chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    let offsetX = 0, offsetY = 0, isDragging = false;
-    h.onmousedown = function(e) {
-      isDragging = true;
-      offsetX = e.clientX - chatPanel.offsetLeft;
-      offsetY = e.clientY - chatPanel.offsetTop;
-      document.body.style.userSelect = "none";
-    };
-    document.onmousemove = function(e) {
-      if(isDragging) {
-        chatPanel.style.left = (e.clientX - offsetX) + "px";
-        chatPanel.style.top = (e.clientY - offsetY) + "px";
-      }
-    };
-    document.onmouseup = function() {
-      isDragging = false;
-      document.body.style.userSelect = "";
-    };
-    const obs = new ResizeObserver(() => {
-      if(chatPanel) chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    });
-    obs.observe(
+    let offsetX = 0, offsetY = 0,

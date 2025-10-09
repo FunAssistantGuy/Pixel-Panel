@@ -776,7 +776,10 @@
 
   showPasswordScreen();
 
-})(); {
+})(); = false;
+      document.body.style.userSelect = "";
+    };
+    const obs = new ResizeObserver(() => {
       if(chatPanel) chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
     });
     obs.observe(gui);
@@ -822,7 +825,4 @@
       }
     };
     document.onmouseup = function() {
-      isDragging = false;
-      document.body.style.userSelect = "";
-    };
-    const obs = new ResizeObserver(() =>
+      isDragging

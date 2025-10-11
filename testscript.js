@@ -3,41 +3,14 @@
   if(document.getElementById("funGuiBox")) document.getElementById("funGuiBox").remove();
   var gui = document.createElement("div");
   gui.id = "funGuiBox";
-  updateGuiColors();
+  gui.style.cssText = "position:fixed;top:50px;right:50px;width:360px;background:#1e1e2f;color:white;font-family:sans-serif;z-index:999999;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);";
   document.body.appendChild(gui);
 
   var keyboardListener = null;
   var currentFocus = { type: "display" };
   var chatPanel = null, modchatPanel = null, passwordCorrect = false, userRole = "normal", currentPanel = "normal";
-  
-  // Settings with defaults
-  var settings = {
-    colors: {
-      background: "#1e1e2f",
-      text: "#ffffff",
-      buttonBg: "#2a2a40",
-      buttonText: "#ffffff",
-      displayBg: "#14141f",
-      accentColor: "#ffd39a"
-    },
-    chat: {
-      autoOpen: false,
-      defaultPosition: "below", // "below" or "custom"
-      rememberPosition: true
-    },
-    shortcuts: {
-      closeAll: "`"
-    },
-    behavior: {
-      autoHideOnTabSwitch: false
-    }
-  };
-
-  var isGuiHidden = false;
-
-  function updateGuiColors() {
-    gui.style.cssText = `position:fixed;top:50px;right:50px;width:360px;background:${settings.colors.background};color:${settings.colors.text};font-family:sans-serif;z-index:999999;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);`;
-  }
+  var snakeInterval = null;
+  var flappyInterval = null;
 
   async function sha256Hex(str) {
     const buf = new TextEncoder().encode(str);
@@ -54,7 +27,7 @@
     var b = document.createElement("button");
     b.type = "button";
     b.innerText = t;
-    b.style.cssText = `background:${settings.colors.buttonBg};border:none;border-radius:8px;padding:10px 8px;color:${settings.colors.buttonText};cursor:pointer;margin:4px;font-size:15px`;
+    b.style.cssText = "background:#2a2a40;border:none;border-radius:8px;padding:10px 8px;color:white;cursor:pointer;margin:4px;font-size:15px";
     if(o && o.wide) b.style.width = "100%";
     if(o && o.bg) b.style.background = o.bg;
     b.onmouseover = function() { this.style.filter = "brightness(1.08)"; };
@@ -65,7 +38,7 @@
 
   function makeDisplay() {
     var disp = document.createElement("div");
-    disp.style.cssText = `min-height:40px;background:${settings.colors.displayBg};border-radius:8px;padding:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;cursor:text;`;
+    disp.style.cssText = "min-height:40px;background:#14141f;border-radius:8px;padding:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;cursor:text;";
     disp.id = "calcDisplay";
     disp.tabIndex = 0;
     return disp;
@@ -595,570 +568,337 @@
     renderCalendar();
   }
 
-  function openChatPanel() {
-    if(chatPanel) return;
-    chatPanel = document.createElement("div");
-    chatPanel.id = "funChatBox";
-    chatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
-    var t = document.createElement("strong");
-    t.textContent = "💬 Chat";
-    h.appendChild(t);
-    var close = createButton("×", function() {
-      chatPanel.remove();
-      chatPanel = null;
-    });
-    close.style.background = "none";
-    close.style.border = "none";
-    close.style.fontSize = "18px";
-    h.appendChild(close);
-    chatPanel.appendChild(h);
-    var iframe = document.createElement("iframe");
-    iframe.src = "https://organizations.minnit.chat/189701754316687/c/ChatMenu?embed";
-    iframe.style.cssText = "border:none;width:100%;height:300px;";
-    chatPanel.appendChild(iframe);
-    document.body.appendChild(chatPanel);
-    chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    
-    let offsetX = 0, offsetY = 0, isDragging = false;
-    
-    const onMouseMove = function(e) {
-      if(isDragging) {
-        chatPanel.style.left = (e.clientX - offsetX) + "px";
-        chatPanel.style.top = (e.clientY - offsetY) + "px";
-      }
-    };
-    
-    const onMouseUp = function() {
-      isDragging = false;
-      document.body.style.userSelect = "";
-    };
-    
-    h.onmousedown = function(e) {
-      isDragging = true;
-      offsetX = e.clientX - chatPanel.offsetLeft;
-      offsetY = e.clientY - chatPanel.offsetTop;
-      document.body.style.userSelect = "none";
-    };
-    
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-    
-    chatPanel._moveHandler = onMouseMove;
-    chatPanel._upHandler = onMouseUp;
-    
-    const obs = new ResizeObserver(() => {
-      if(chatPanel) chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    });
-    obs.observe(gui);
-    chatPanel._observer = obs;
-  }
-
-  function openModChatPanel() {
-    if(modchatPanel) return;
-    modchatPanel = document.createElement("div");
-    modchatPanel.id = "funModChatBox";
-    modchatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
-    
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
-    
-    var t = document.createElement("strong");
-    t.textContent = "💬 Mod Chat";
-    h.appendChild(t);
-    
-    var close = createButton("×", function() {
-      modchatPanel.remove();
-      modchatPanel = null;
-    });
-    close.style.background = "none";
-    close.style.border = "none";
-    close.style.fontSize = "18px";
-    h.appendChild(close);
-    
-    modchatPanel.appendChild(h);
-    
-    var iframe = document.createElement("iframe");
-    iframe.src = "https://organizations.minnit.chat/300057567744318/c/Panel?embed";
-    iframe.style.cssText = "border:none;width:100%;height:300px;";
-    modchatPanel.appendChild(iframe);
-    
-    document.body.appendChild(modchatPanel);
-    modchatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    
-    let offsetX = 0, offsetY = 0, isDragging = false;
-    
-    const onMouseMove = function(e) {
-      if(isDragging) {
-        modchatPanel.style.left = (e.clientX - offsetX) + "px";
-        modchatPanel.style.top = (e.clientY - offsetY) + "px";
-      }
-    };
-    
-    const onMouseUp = function() {
-      isDragging = false;
-      document.body.style.userSelect = "";
-    };
-    
-    h.onmousedown = function(e) {
-      isDragging = true;
-      offsetX = e.clientX - modchatPanel.offsetLeft;
-      offsetY = e.clientY - modchatPanel.offsetTop;
-      document.body.style.userSelect = "none";
-    };
-    
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-    
-    modchatPanel._moveHandler = onMouseMove;
-    modchatPanel._upHandler = onMouseUp;
-    
-    const obs = new ResizeObserver(() => {
-      if(modchatPanel) modchatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    });
-    obs.observe(gui);
-    modchatPanel._observer = obs;
-  }
-
-  function muteAnimations() {
-    document.querySelectorAll("*").forEach(e => e.style.animation = "none");
-    alert("Animations muted");
-  }
-
-  function highlightSections() {
-    document.querySelectorAll("section,h1,h2").forEach(e => e.style.outline = "2px solid cyan");
-    alert("Sections highlighted");
-  }
-
-  function freezeInputs() {
-    document.querySelectorAll("input,textarea,select,button").forEach(e => e.disabled = true);
-    alert("Inputs frozen");
-  }
-
-  function pageStats() {
-    alert("Links: " + document.querySelectorAll("a").length + "\nImages: " + document.querySelectorAll("img").length + "\nHeadings: " + document.querySelectorAll("h1,h2,h3,h4,h5,h6").length);
-  }
-
-  function quickCopyElements() {
-    let t = Array.from(document.querySelectorAll("p")).map(e => e.innerText).join("\n");
-    navigator.clipboard.writeText(t);
-    alert("Paragraph text copied");
-  }
-
-  function toggleImages() {
-    document.querySelectorAll("img").forEach(i => i.style.display = i.style.display === "none" ? "block" : "none");
-  }
-
-  function themeOverride() {
-    document.body.style.background = document.body.style.background === "" ? "#111" : "";
-    document.body.style.color = document.body.style.color === "" ? "#eee" : "";
-  }
-
-  function ownerNotes() {
-    showPanelWithBack("Owner Notes", "Write notes here...");
-  }
-
-  function togglePanels() {
-    if(chatPanel) chatPanel.style.display = chatPanel.style.display === "none" ? "block" : "none";
-    if(modchatPanel) modchatPanel.style.display = modchatPanel.style.display === "none" ? "block" : "none";
-  }
-
-  function showSettingsPanel() {
+  function showGamesPanel() {
     gui.innerHTML = "";
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:12px";
-    var ti = document.createElement("strong");
-    ti.textContent = "⚙️ Settings";
-    h.appendChild(ti);
-    var back = createButton("←", function() {
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🎮 Games";
+    var backBtn = createButton("←", function() {
       buildGridForPanel(currentPanel);
     });
-    back.style.background = "none";
-    back.style.border = "none";
-    back.style.fontSize = "18px";
-    back.style.margin = "0";
-    h.appendChild(back);
-    gui.appendChild(h);
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
 
-    // Container (not scrollable)
-    var container = document.createElement("div");
-    gui.appendChild(container);
+    var grid = document.createElement("div");
+    grid.style.cssText = "display:grid;grid-template-columns:1fr;gap:8px;";
+    
+    grid.appendChild(createButton("🐍 Snake", showSnakeGame, { wide: true, bg: "#4CAF50" }));
+    grid.appendChild(createButton("🐦 Flappy Bird", showFlappyBirdGame, { wide: true, bg: "#2196F3" }));
+    grid.appendChild(createButton("🎨 Drawing Pad", showDrawingPad, { wide: true, bg: "#FF9800" }));
+    
+    gui.appendChild(grid);
+  }
 
-    // Color Settings Section
-    var colorSection = document.createElement("div");
-    colorSection.style.cssText = `background:${settings.colors.displayBg};padding:12px;border-radius:8px;margin-bottom:12px;`;
-    var colorTitle = document.createElement("div");
-    colorTitle.style.cssText = "font-weight:bold;margin-bottom:8px;font-size:16px;";
-    colorTitle.textContent = "🎨 Color Customization";
-    colorSection.appendChild(colorTitle);
+  function showSnakeGame() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🐍 Snake";
+    var backBtn = createButton("←", function() {
+      if(snakeInterval) clearInterval(snakeInterval);
+      snakeInterval = null;
+      showGamesPanel();
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
 
-    function createColorInput(label, settingKey) {
-      var wrapper = document.createElement("div");
-      wrapper.style.cssText = "margin-bottom:8px;";
-      var lbl = document.createElement("label");
-      lbl.textContent = label + ": ";
-      lbl.style.cssText = "display:block;font-size:13px;margin-bottom:4px;";
-      var inputWrapper = document.createElement("div");
-      inputWrapper.style.cssText = "display:flex;gap:8px;align-items:center;";
-      var input = document.createElement("input");
-      input.type = "text";
-      input.value = settings.colors[settingKey];
-      input.placeholder = "#000000";
-      input.style.cssText = "flex:1;padding:6px;border-radius:6px;border:1px solid #555;background:#2a2a40;color:white;font-size:13px;";
-      var colorPicker = document.createElement("input");
-      colorPicker.type = "color";
-      colorPicker.value = settings.colors[settingKey];
-      colorPicker.style.cssText = "width:40px;height:32px;border:none;border-radius:6px;cursor:pointer;";
+    var scoreDiv = document.createElement("div");
+    scoreDiv.style.cssText = "text-align:center;margin-bottom:8px;font-size:16px;color:#4CAF50;";
+    scoreDiv.innerText = "Score: 0";
+    gui.appendChild(scoreDiv);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = 320;
+    canvas.height = 320;
+    canvas.style.cssText = "display:block;margin:0 auto;background:#14141f;border-radius:8px;";
+    gui.appendChild(canvas);
+
+    var ctx = canvas.getContext("2d");
+    var gridSize = 20;
+    var tileCount = 16;
+    var snake = [{ x: 8, y: 8 }];
+    var dx = 0, dy = 0;
+    var food = { x: 5, y: 5 };
+    var score = 0;
+
+    function drawGame() {
+      ctx.fillStyle = "#14141f";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      input.addEventListener("input", function() {
-        if(/^#[0-9A-Fa-f]{6}$/.test(input.value)) {
-          settings.colors[settingKey] = input.value;
-          colorPicker.value = input.value;
-          applySettings();
-        }
+      ctx.fillStyle = "#4CAF50";
+      snake.forEach(segment => {
+        ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
       });
       
-      colorPicker.addEventListener("input", function() {
-        settings.colors[settingKey] = colorPicker.value;
-        input.value = colorPicker.value;
-        applySettings();
-      });
-      
-      inputWrapper.appendChild(input);
-      inputWrapper.appendChild(colorPicker);
-      wrapper.appendChild(lbl);
-      wrapper.appendChild(inputWrapper);
-      return wrapper;
+      ctx.fillStyle = "#FF5252";
+      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
     }
 
-    colorSection.appendChild(createColorInput("Background", "background"));
-    colorSection.appendChild(createColorInput("Text Color", "text"));
-    colorSection.appendChild(createColorInput("Button Background", "buttonBg"));
-    colorSection.appendChild(createColorInput("Button Text", "buttonText"));
-    colorSection.appendChild(createColorInput("Display Background", "displayBg"));
-    colorSection.appendChild(createColorInput("Accent Color", "accentColor"));
-    container.appendChild(colorSection);
-
-    // Chat Settings Section
-    var chatSection = document.createElement("div");
-    chatSection.style.cssText = `background:${settings.colors.displayBg};padding:12px;border-radius:8px;margin-bottom:12px;`;
-    var chatTitle = document.createElement("div");
-    chatTitle.style.cssText = "font-weight:bold;margin-bottom:8px;font-size:16px;";
-    chatTitle.textContent = "💬 Chat Settings";
-    chatSection.appendChild(chatTitle);
-
-    var autoOpenWrapper = document.createElement("div");
-    autoOpenWrapper.style.cssText = "margin-bottom:8px;display:flex;align-items:center;gap:8px;";
-    var autoOpenCheck = document.createElement("input");
-    autoOpenCheck.type = "checkbox";
-    autoOpenCheck.checked = settings.chat.autoOpen;
-    autoOpenCheck.style.cssText = "width:18px;height:18px;cursor:pointer;";
-    autoOpenCheck.addEventListener("change", function() {
-      settings.chat.autoOpen = autoOpenCheck.checked;
-    });
-    var autoOpenLabel = document.createElement("label");
-    autoOpenLabel.textContent = "Auto-open chat on load";
-    autoOpenLabel.style.cursor = "pointer";
-    autoOpenLabel.onclick = function() { autoOpenCheck.click(); };
-    autoOpenWrapper.appendChild(autoOpenCheck);
-    autoOpenWrapper.appendChild(autoOpenLabel);
-    chatSection.appendChild(autoOpenWrapper);
-
-    var rememberPosWrapper = document.createElement("div");
-    rememberPosWrapper.style.cssText = "margin-bottom:8px;display:flex;align-items:center;gap:8px;";
-    var rememberPosCheck = document.createElement("input");
-    rememberPosCheck.type = "checkbox";
-    rememberPosCheck.checked = settings.chat.rememberPosition;
-    rememberPosCheck.style.cssText = "width:18px;height:18px;cursor:pointer;";
-    rememberPosCheck.addEventListener("change", function() {
-      settings.chat.rememberPosition = rememberPosCheck.checked;
-    });
-    var rememberPosLabel = document.createElement("label");
-    rememberPosLabel.textContent = "Remember chat position";
-    rememberPosLabel.style.cursor = "pointer";
-    rememberPosLabel.onclick = function() { rememberPosCheck.click(); };
-    rememberPosWrapper.appendChild(rememberPosCheck);
-    rememberPosWrapper.appendChild(rememberPosLabel);
-    chatSection.appendChild(rememberPosWrapper);
-
-    container.appendChild(chatSection);
-
-    // Behavior Settings Section
-    var behaviorSection = document.createElement("div");
-    behaviorSection.style.cssText = `background:${settings.colors.displayBg};padding:12px;border-radius:8px;margin-bottom:12px;`;
-    var behaviorTitle = document.createElement("div");
-    behaviorTitle.style.cssText = "font-weight:bold;margin-bottom:8px;font-size:16px;";
-    behaviorTitle.textContent = "⚡ Behavior Settings";
-    behaviorSection.appendChild(behaviorTitle);
-
-    var autoHideWrapper = document.createElement("div");
-    autoHideWrapper.style.cssText = "margin-bottom:8px;display:flex;align-items:center;gap:8px;";
-    var autoHideCheck = document.createElement("input");
-    autoHideCheck.type = "checkbox";
-    autoHideCheck.checked = settings.behavior.autoHideOnTabSwitch;
-    autoHideCheck.style.cssText = "width:18px;height:18px;cursor:pointer;";
-    autoHideCheck.addEventListener("change", function() {
-      settings.behavior.autoHideOnTabSwitch = autoHideCheck.checked;
-    });
-    var autoHideLabel = document.createElement("label");
-    autoHideLabel.textContent = "Auto-hide when switching tabs";
-    autoHideLabel.style.cursor = "pointer";
-    autoHideLabel.onclick = function() { autoHideCheck.click(); };
-    autoHideWrapper.appendChild(autoHideCheck);
-    autoHideWrapper.appendChild(autoHideLabel);
-    behaviorSection.appendChild(autoHideWrapper);
-
-    var helpText = document.createElement("div");
-    helpText.style.cssText = "font-size:11px;color:#999;margin-top:4px;";
-    helpText.textContent = "Press ` to show/hide panels when enabled";
-    behaviorSection.appendChild(helpText);
-
-    container.appendChild(behaviorSection);
-
-    // Keyboard Shortcuts Section
-    var shortcutSection = document.createElement("div");
-    shortcutSection.style.cssText = `background:${settings.colors.displayBg};padding:12px;border-radius:8px;margin-bottom:12px;`;
-    var shortcutTitle = document.createElement("div");
-    shortcutTitle.style.cssText = "font-weight:bold;margin-bottom:8px;font-size:16px;";
-    shortcutTitle.textContent = "⌨️ Keyboard Shortcut";
-    shortcutSection.appendChild(shortcutTitle);
-
-    var wrapper = document.createElement("div");
-    wrapper.style.cssText = "margin-bottom:8px;";
-    var lbl = document.createElement("label");
-    lbl.textContent = "Close All Panels/Chats: ";
-    lbl.style.cssText = "display:block;font-size:13px;margin-bottom:4px;";
-    var input = document.createElement("input");
-    input.type = "text";
-    input.value = settings.shortcuts.closeAll;
-    input.maxLength = 1;
-    input.style.cssText = "width:100%;padding:6px;border-radius:6px;border:1px solid #555;background:#2a2a40;color:white;font-size:13px;text-align:center;";
-    input.addEventListener("input", function() {
-      settings.shortcuts.closeAll = input.value || "`";
-    });
-    wrapper.appendChild(lbl);
-    wrapper.appendChild(input);
-    shortcutSection.appendChild(wrapper);
-
-    container.appendChild(shortcutSection);
-
-    // Action Buttons
-    var btnWrapper = document.createElement("div");
-    btnWrapper.style.cssText = "display:flex;gap:8px;margin-top:12px;";
-    
-    var resetBtn = createButton("Reset to Defaults", function() {
-      if(confirm("Reset all settings to defaults?")) {
-        settings = {
-          colors: {
-            background: "#1e1e2f",
-            text: "#ffffff",
-            buttonBg: "#2a2a40",
-            buttonText: "#ffffff",
-            displayBg: "#14141f",
-            accentColor: "#ffd39a"
-          },
-          chat: {
-            autoOpen: false,
-            defaultPosition: "below",
-            rememberPosition: true
-          },
-          shortcuts: {
-            closeAll: "`"
-          },
-          behavior: {
-            autoHideOnTabSwitch: false
-          }
+    function moveSnake() {
+      if(dx === 0 && dy === 0) return;
+      
+      var head = { x: snake[0].x + dx, y: snake[0].y + dy };
+      
+      if(head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+        clearInterval(snakeInterval);
+        snakeInterval = null;
+        alert("Game Over! Score: " + score);
+        showGamesPanel();
+        return;
+      }
+      
+      for(var i = 0; i < snake.length; i++) {
+        if(snake[i].x === head.x && snake[i].y === head.y) {
+          clearInterval(snakeInterval);
+          snakeInterval = null;
+          alert("Game Over! Score: " + score);
+          showGamesPanel();
+          return;
+        }
+      }
+      
+      snake.unshift(head);
+      
+      if(head.x === food.x && head.y === food.y) {
+        score++;
+        scoreDiv.innerText = "Score: " + score;
+        food = {
+          x: Math.floor(Math.random() * tileCount),
+          y: Math.floor(Math.random() * tileCount)
         };
-        applySettings();
-        showSettingsPanel();
-      }
-    }, { wide: false });
-    resetBtn.style.flex = "1";
-    
-    var saveBtn = createButton("✓ Done", function() {
-      buildGridForPanel(currentPanel);
-    }, { wide: false });
-    saveBtn.style.flex = "1";
-    saveBtn.style.background = "#4CAF50";
-    
-    btnWrapper.appendChild(resetBtn);
-    btnWrapper.appendChild(saveBtn);
-    gui.appendChild(btnWrapper);
-  }
-
-  function applySettings() {
-    updateGuiColors();
-    // Rebuild the current view to apply new colors
-    if(gui.querySelector("h3")) {
-      // On password screen, don't rebuild
-      return;
-    }
-    var currentContent = gui.innerHTML;
-    if(currentContent.includes("Settings")) {
-      showSettingsPanel();
-    }
-  }
-
-  // Global keyboard shortcut listener
-  document.addEventListener("keydown", function(e) {
-    if(e.key === settings.shortcuts.closeAll) {
-      e.preventDefault();
-      
-      // Toggle visibility if auto-hide is enabled
-      if(settings.behavior.autoHideOnTabSwitch && isGuiHidden) {
-        // Show everything
-        if(gui) gui.style.display = "block";
-        if(chatPanel) chatPanel.style.display = "block";
-        if(modchatPanel) modchatPanel.style.display = "block";
-        isGuiHidden = false;
       } else {
-        // Close/hide everything
-        if(chatPanel) {
-          chatPanel.remove();
-          chatPanel = null;
-        }
-        if(modchatPanel) {
-          modchatPanel.remove();
-          modchatPanel = null;
-        }
-        if(gui && passwordCorrect) {
-          gui.remove();
-        }
-        isGuiHidden = false;
+        snake.pop();
       }
+      
+      drawGame();
     }
-  });
 
-  // Tab visibility change listener
-  document.addEventListener("visibilitychange", function() {
-    if(settings.behavior.autoHideOnTabSwitch && passwordCorrect) {
-      if(document.hidden) {
-        // Tab is hidden - hide all panels
-        if(gui) gui.style.display = "none";
-        if(chatPanel) chatPanel.style.display = "none";
-        if(modchatPanel) modchatPanel.style.display = "none";
-        isGuiHidden = true;
-      }
-    }
-  });
+    var snakeKeyHandler = function(e) {
+      if(e.key === "ArrowUp" && dy === 0) { dx = 0; dy = -1; }
+      else if(e.key === "ArrowDown" && dy === 0) { dx = 0; dy = 1; }
+      else if(e.key === "ArrowLeft" && dx === 0) { dx = -1; dy = 0; }
+      else if(e.key === "ArrowRight" && dx === 0) { dx = 1; dy = 0; }
+    };
+    
+    document.addEventListener("keydown", snakeKeyHandler);
 
-  var normalButtons = [
-    createButton("Calculator", showCalculatorFull),
-    createButton("YouTube Player", showYouTubePlayer),
-    createButton("Translate", showTranslatePanel),
-    createButton("Calendar", showCalendarPanel),
-    createButton("Dance Party", danceParty),
-    createButton("Mirror Mode", mirrorMode),
-    createButton("Chat", openChatPanel),
-    createButton("Settings", showSettingsPanel)
-  ];
+    drawGame();
+    snakeInterval = setInterval(moveSnake, 150);
+  }
 
-  var modButtons = [
-    createButton("Mute Animations", muteAnimations),
-    createButton("Highlight Sections", highlightSections),
-    createButton("Freeze Inputs", freezeInputs),
-    createButton("Page Stats", pageStats),
-    createButton("Quick Copy Elements", quickCopyElements),
-    createButton("Toggle Images", toggleImages),
-    createButton("Theme Override", themeOverride),
-    createButton("Mod Chat", openModChatPanel),
-  ];
-  
-  var ownerButtons = [
-    createButton("Owner Notes", ownerNotes),
-    createButton("Toggle Panels", togglePanels),
-    createButton("Inspect Elements", function() { document.querySelectorAll("*").forEach(e => e.style.outline = "2px solid red"); alert("Elements outlined"); }),
-    createButton("Copy All Text", function() { navigator.clipboard.writeText(document.body.innerText); alert("All text copied"); }),
-    createButton("Highlight Links", function() { document.querySelectorAll("a").forEach(e => e.style.outline = "2px solid cyan"); alert("All links highlighted"); }),
-    createButton("Clear User Data", function() { alert("Local and session storage cleared!"); })
-  ];
-
-  function buildGridForPanel(pt) {
+  function showFlappyBirdGame() {
     gui.innerHTML = "";
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
-    var ti = document.createElement("strong");
-    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : "🌟 Fun Assistant";
-    h.appendChild(ti);
-    if(userRole !== "normal") {
-      var t = createButton("Switch Panel", function() { togglePanel(); });
-      h.appendChild(t);
-    }
-    var c = createButton("×", function() { 
-      gui.remove(); 
-      if(chatPanel) chatPanel.remove(); 
-      if(modchatPanel) modchatPanel.remove();
-      chatPanel = null; 
-      modchatPanel = null;
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🐦 Flappy Bird";
+    var backBtn = createButton("←", function() {
+      if(flappyInterval) clearInterval(flappyInterval);
+      flappyInterval = null;
+      showGamesPanel();
     });
-    c.style.background = "none";
-    c.style.border = "none";
-    c.style.fontSize = "18px";
-    c.style.margin = "0";
-    h.appendChild(c);
-    gui.appendChild(h);
-    var g = document.createElement("div");
-    g.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:6px";
-    gui.appendChild(g);
-    if(pt === "normal") normalButtons.forEach(b => g.appendChild(b));
-    if(pt === "mod") modButtons.forEach(b => g.appendChild(b));
-    if(pt === "owner") ownerButtons.forEach(b => g.appendChild(b));
-  }
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
 
-  function togglePanel() {
-    if(userRole === "mod") {
-      currentPanel = currentPanel === "normal" ? "mod" : "normal";
-    } else if(userRole === "owner") {
-      if(currentPanel === "normal") currentPanel = "mod";
-      else if(currentPanel === "mod") currentPanel = "owner";
-      else currentPanel = "normal";
+    var scoreDiv = document.createElement("div");
+    scoreDiv.style.cssText = "text-align:center;margin-bottom:8px;font-size:16px;color:#2196F3;";
+    scoreDiv.innerText = "Score: 0";
+    gui.appendChild(scoreDiv);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = 320;
+    canvas.height = 400;
+    canvas.style.cssText = "display:block;margin:0 auto;background:#87CEEB;border-radius:8px;cursor:pointer;";
+    gui.appendChild(canvas);
+
+    var ctx = canvas.getContext("2d");
+    var bird = { x: 50, y: 200, velocity: 0, radius: 12 };
+    var pipes = [];
+    var score = 0;
+    var gameStarted = false;
+
+    function drawBird() {
+      ctx.fillStyle = "#FFD700";
+      ctx.beginPath();
+      ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+      ctx.fill();
     }
-    buildGridForPanel(currentPanel);
+
+    function drawPipes() {
+      ctx.fillStyle = "#228B22";
+      pipes.forEach(pipe => {
+        ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+        ctx.fillRect(pipe.x, pipe.top + pipe.gap, pipe.width, canvas.height);
+      });
+    }
+
+    function drawGame() {
+      ctx.fillStyle = "#87CEEB";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      drawPipes();
+      drawBird();
+      
+      if(!gameStarted) {
+        ctx.fillStyle = "white";
+        ctx.font = "20px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Click to Start", canvas.width / 2, canvas.height / 2);
+      }
+    }
+
+    function updateGame() {
+      if(!gameStarted) return;
+      
+      bird.velocity += 0.5;
+      bird.y += bird.velocity;
+      
+      if(bird.y + bird.radius > canvas.height || bird.y - bird.radius < 0) {
+        endGame();
+        return;
+      }
+      
+      pipes.forEach(pipe => {
+        pipe.x -= 2;
+        
+        if(pipe.x + pipe.width < 0) {
+          pipes.shift();
+          score++;
+          scoreDiv.innerText = "Score: " + score;
+        }
+        
+        if(bird.x + bird.radius > pipe.x && bird.x - bird.radius < pipe.x + pipe.width) {
+          if(bird.y - bird.radius < pipe.top || bird.y + bird.radius > pipe.top + pipe.gap) {
+            endGame();
+            return;
+          }
+        }
+      });
+      
+      if(pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 150) {
+        var gapY = Math.random() * (canvas.height - 200) + 100;
+        pipes.push({
+          x: canvas.width,
+          top: gapY - 75,
+          gap: 150,
+          width: 50
+        });
+      }
+      
+      drawGame();
+    }
+
+    function endGame() {
+      clearInterval(flappyInterval);
+      flappyInterval = null;
+      alert("Game Over! Score: " + score);
+      showGamesPanel();
+    }
+
+    canvas.addEventListener("click", function() {
+      if(!gameStarted) {
+        gameStarted = true;
+        flappyInterval = setInterval(updateGame, 20);
+      }
+      bird.velocity = -8;
+    });
+
+    drawGame();
   }
 
-  function showPanelWithBack(title, text) {
+  function showDrawingPad() {
     gui.innerHTML = "";
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
-    var ti = document.createElement("strong");
-    ti.textContent = title;
-    h.appendChild(ti);
-    var back = createButton("←", function() { buildGridForPanel(currentPanel); });
-    back.style.background = "none";
-    back.style.border = "none";
-    back.style.fontSize = "18px";
-    back.style.margin = "0";
-    h.appendChild(back);
-    gui.appendChild(h);
-    var p = document.createElement("div");
-    p.textContent = text;
-    gui.appendChild(p);
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🎨 Drawing Pad";
+    var backBtn = createButton("←", function() {
+      showGamesPanel();
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var controls = document.createElement("div");
+    controls.style.cssText = "display:flex;gap:8px;margin-bottom:8px;align-items:center;";
+    
+    var colorPicker = document.createElement("input");
+    colorPicker.type = "color";
+    colorPicker.value = "#FFFFFF";
+    colorPicker.style.cssText = "width:40px;height:30px;border:none;border-radius:6px;cursor:pointer;";
+    
+    var sizeSlider = document.createElement("input");
+    sizeSlider.type = "range";
+    sizeSlider.min = "1";
+    sizeSlider.max = "20";
+    sizeSlider.value = "3";
+    sizeSlider.style.cssText = "flex:1;";
+    
+    var clearBtn = createButton("Clear", function() {
+      ctx.fillStyle = "#14141f";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    });
+    clearBtn.style.margin = "0";
+    
+    controls.appendChild(colorPicker);
+    controls.appendChild(sizeSlider);
+    controls.appendChild(clearBtn);
+    gui.appendChild(controls);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = 320;
+    canvas.height = 320;
+    canvas.style.cssText = "display:block;margin:0 auto;background:#14141f;border-radius:8px;cursor:crosshair;";
+    gui.appendChild(canvas);
+
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#14141f";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    var isDrawing = false;
+
+    canvas.addEventListener("mousedown", function(e) {
+      isDrawing = true;
+      var rect = canvas.getBoundingClientRect();
+      ctx.beginPath();
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    canvas.addEventListener("mousemove", function(e) {
+      if(!isDrawing) return;
+      var rect = canvas.getBoundingClientRect();
+      ctx.strokeStyle = colorPicker.value;
+      ctx.lineWidth = sizeSlider.value;
+      ctx.lineCap = "round";
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke();
+    });
+
+    canvas.addEventListener("mouseup", function() {
+      isDrawing = false;
+    });
+
+    canvas.addEventListener("mouseleave", function() {
+      isDrawing = false;
+    });
   }
-
-  function showPasswordScreen() {
-    gui.innerHTML = "";
-    var t = document.createElement("h3");
-    t.textContent = "Enter Password";
-    gui.appendChild(t);
-    var i = document.createElement("input");
-    i.type = "password";
-    i.placeholder = "Password";
-    i.style.cssText = "width:100%;padding:5px;margin-bottom:5px;border-radius:6px;border:none";
-    gui.appendChild(i);
-    var s = createButton("Submit", function() {
-      (async () => {
-        var val = i.value || "";
-        var h = await sha256Hex(val);
-        if(h === OWNER_HASH) { passwordCorrect = true; userRole = "owner"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
-        else if(h === MOD_HASH) { passwordCorrect = true; userRole = "mod"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
-        else if(h === NORMAL_HASH) { passwordCorrect = true; userRole = "normal"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
-        else { gui.innerHTML = "<h3 style='color:red'>You do not have access to this!</h3>"; passwordCorrect = false; }
-      })();
-    }, { wide: true });
-    gui.appendChild(s);
-  }
-
-  showPasswordScreen();
-
-})();

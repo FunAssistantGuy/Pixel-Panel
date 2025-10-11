@@ -566,110 +566,89 @@
     renderCalendar();
   }
 
-  function openChatPanel() {
-    if(chatPanel) return;
-    chatPanel = document.createElement("div");
-    chatPanel.id = "funChatBox";
-    chatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
-    var t = document.createElement("strong");
-    t.textContent = "💬 Chat";
-    h.appendChild(t);
-    var close = createButton("×", function() {
-      chatPanel.remove();
-      chatPanel = null;
-    });
-    close.style.background = "none";
-    close.style.border = "none";
-    close.style.fontSize = "18px";
-    h.appendChild(close);
-    chatPanel.appendChild(h);
-    var iframe = document.createElement("iframe");
-    iframe.src = "https://organizations.minnit.chat/189701754316687/c/ChatMenu?embed";
-    iframe.style.cssText = "border:none;width:100%;height:300px;";
-    chatPanel.appendChild(iframe);
-    document.body.appendChild(chatPanel);
-    chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    let offsetX = 0, offsetY = 0, isDragging = false;
-    h.onmousedown = function(e) {
-      isDragging = true;
-      offsetX = e.clientX - chatPanel.offsetLeft;
-      offsetY = e.clientY - chatPanel.offsetTop;
-      document.body.style.userSelect = "none";
-    };
-    document.onmousemove = function(e) {
-      if(isDragging) {
-        chatPanel.style.left = (e.clientX - offsetX) + "px";
-        chatPanel.style.top = (e.clientY - offsetY) + "px";
-      }
-    };
-    document.onmouseup = function() {
-      isDragging = false;
-      document.body.style.userSelect = "";
-    };
-    const obs = new ResizeObserver(() => {
-      if(chatPanel) chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    });
-    obs.observe(gui);
-    chatPanel._observer = obs;
-  }
+  // Shared drag state
+let dragState = { panel: null, offsetX: 0, offsetY: 0 };
 
-  function muteAnimations() {
-    document.querySelectorAll("*").forEach(e => e.style.animation = "none");
-    alert("Animations muted");
-  }
+// Generic draggable helper
+function makeDraggable(panel, handle) {
+  handle.onmousedown = function(e) {
+    dragState.panel = panel;
+    dragState.offsetX = e.clientX - panel.offsetLeft;
+    dragState.offsetY = e.clientY - panel.offsetTop;
+    document.body.style.userSelect = "none";
+  };
+}
 
-  function highlightSections() {
-    document.querySelectorAll("section,h1,h2").forEach(e => e.style.outline = "2px solid cyan");
-    alert("Sections highlighted");
+// Mouse events
+document.addEventListener("mousemove", function(e) {
+  if(dragState.panel) {
+    dragState.panel.style.left = (e.clientX - dragState.offsetX) + "px";
+    dragState.panel.style.top = (e.clientY - dragState.offsetY) + "px";
   }
+});
 
-  function freezeInputs() {
-    document.querySelectorAll("input,textarea,select,button").forEach(e => e.disabled = true);
-    alert("Inputs frozen");
-  }
+document.addEventListener("mouseup", function() {
+  dragState.panel = null;
+  document.body.style.userSelect = "";
+});
 
-  function pageStats() {
-    alert("Links: " + document.querySelectorAll("a").length + "\nImages: " + document.querySelectorAll("img").length + "\nHeadings: " + document.querySelectorAll("h1,h2,h3,h4,h5,h6").length);
-  }
+// Normal Chat Panel
+function openChatPanel() {
+  if(chatPanel) return;
+  chatPanel = document.createElement("div");
+  chatPanel.id = "funChatBox";
+  chatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
 
-  function quickCopyElements() {
-    let t = Array.from(document.querySelectorAll("p")).map(e => e.innerText).join("\n");
-    navigator.clipboard.writeText(t);
-    alert("Paragraph text copied");
-  }
+  var h = document.createElement("div");
+  h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
 
-  function toggleImages() {
-    document.querySelectorAll("img").forEach(i => i.style.display = i.style.display === "none" ? "block" : "none");
-  }
+  var t = document.createElement("strong");
+  t.textContent = "💬 Chat";
+  h.appendChild(t);
 
-  function themeOverride() {
-    document.body.style.background = document.body.style.background === "" ? "#111" : "";
-    document.body.style.color = document.body.style.color === "" ? "#eee" : "";
-  }
+  var close = createButton("×", function() {
+    chatPanel.remove();
+    chatPanel = null;
+  });
+  close.style.background = "none";
+  close.style.border = "none";
+  close.style.fontSize = "18px";
+  h.appendChild(close);
 
-  function ownerNotes() {
-    showPanelWithBack("Owner Notes", "Write notes here...");
-  }
+  chatPanel.appendChild(h);
 
-  function togglePanels() {
-    if(chatPanel) chatPanel.style.display = chatPanel.style.display === "none" ? "block" : "none";
-  }
+  var iframe = document.createElement("iframe");
+  iframe.src = "https://organizations.minnit.chat/189701754316687/c/ChatMenu?embed";
+  iframe.style.cssText = "border:none;width:100%;height:300px;";
+  chatPanel.appendChild(iframe);
 
-  function openModChatPanel() {
+  document.body.appendChild(chatPanel);
+  chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
+
+  // Make draggable
+  makeDraggable(chatPanel, h);
+
+  const obs = new ResizeObserver(() => {
+    if(chatPanel) chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
+  });
+  obs.observe(gui);
+  chatPanel._observer = obs;
+}
+
+// Mod Chat Panel
+function openModChatPanel() {
   if(modchatPanel) return;
   modchatPanel = document.createElement("div");
   modchatPanel.id = "funChatBox";
   modchatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
-  
+
   var h = document.createElement("div");
   h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
-  
+
   var t = document.createElement("strong");
   t.textContent = "💬 Mod Chat";
   h.appendChild(t);
-  
+
   var close = createButton("×", function() {
     modchatPanel.remove();
     modchatPanel = null;
@@ -678,37 +657,20 @@
   close.style.border = "none";
   close.style.fontSize = "18px";
   h.appendChild(close);
-  
+
   modchatPanel.appendChild(h);
-  
+
   var iframe = document.createElement("iframe");
   iframe.src = "https://organizations.minnit.chat/300057567744318/c/Panel?embed";
   iframe.style.cssText = "border:none;width:100%;height:300px;";
   modchatPanel.appendChild(iframe);
-  
+
   document.body.appendChild(modchatPanel);
   modchatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-  
-  let offsetX = 0, offsetY = 0, isDragging = false;
-  h.onmousedown = function(e) {
-    isDragging = true;
-    offsetX = e.clientX - modchatPanel.offsetLeft;
-    offsetY = e.clientY - modchatPanel.offsetTop;
-    document.body.style.userSelect = "none";
-  };
-  
-  document.onmousemove = function(e) {
-    if(isDragging) {
-      modchatPanel.style.left = (e.clientX - offsetX) + "px";
-      modchatPanel.style.top = (e.clientY - offsetY) + "px";
-    }
-  };
-  
-  document.onmouseup = function() {
-    isDragging = false;
-    document.body.style.userSelect = "";
-  };
-  
+
+  // Make draggable
+  makeDraggable(modchatPanel, h);
+
   const obs = new ResizeObserver(() => {
     if(modchatPanel) modchatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
   });

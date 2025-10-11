@@ -1,4 +1,4 @@
-// Fun Assistant - Complete Script
+// Fun Assistant - Complete Script with Games
 (function() {
   if(document.getElementById("funGuiBox")) document.getElementById("funGuiBox").remove();
   var gui = document.createElement("div");
@@ -902,3 +902,292 @@
       isDrawing = false;
     });
   }
+
+  function openChatPanel() {
+    if(chatPanel) return;
+    chatPanel = document.createElement("div");
+    chatPanel.id = "funChatBox";
+    chatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
+    var h = document.createElement("div");
+    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
+    var t = document.createElement("strong");
+    t.textContent = "💬 Chat";
+    h.appendChild(t);
+    var close = createButton("×", function() {
+      chatPanel.remove();
+      chatPanel = null;
+    });
+    close.style.background = "none";
+    close.style.border = "none";
+    close.style.fontSize = "18px";
+    h.appendChild(close);
+    chatPanel.appendChild(h);
+    var iframe = document.createElement("iframe");
+    iframe.src = "https://organizations.minnit.chat/189701754316687/c/ChatMenu?embed";
+    iframe.style.cssText = "border:none;width:100%;height:300px;";
+    chatPanel.appendChild(iframe);
+    document.body.appendChild(chatPanel);
+    chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
+    
+    let offsetX = 0, offsetY = 0, isDragging = false;
+    
+    const onMouseMove = function(e) {
+      if(isDragging) {
+        chatPanel.style.left = (e.clientX - offsetX) + "px";
+        chatPanel.style.top = (e.clientY - offsetY) + "px";
+      }
+    };
+    
+    const onMouseUp = function() {
+      isDragging = false;
+      document.body.style.userSelect = "";
+    };
+    
+    h.onmousedown = function(e) {
+      isDragging = true;
+      offsetX = e.clientX - chatPanel.offsetLeft;
+      offsetY = e.clientY - chatPanel.offsetTop;
+      document.body.style.userSelect = "none";
+    };
+    
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    
+    chatPanel._moveHandler = onMouseMove;
+    chatPanel._upHandler = onMouseUp;
+    
+    const obs = new ResizeObserver(() => {
+      if(chatPanel) chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
+    });
+    obs.observe(gui);
+    chatPanel._observer = obs;
+  }
+
+  function openModChatPanel() {
+    if(modchatPanel) return;
+    modchatPanel = document.createElement("div");
+    modchatPanel.id = "funModChatBox";
+    modchatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
+    
+    var h = document.createElement("div");
+    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
+    
+    var t = document.createElement("strong");
+    t.textContent = "💬 Mod Chat";
+    h.appendChild(t);
+    
+    var close = createButton("×", function() {
+      modchatPanel.remove();
+      modchatPanel = null;
+    });
+    close.style.background = "none";
+    close.style.border = "none";
+    close.style.fontSize = "18px";
+    h.appendChild(close);
+    
+    modchatPanel.appendChild(h);
+    
+    var iframe = document.createElement("iframe");
+    iframe.src = "https://organizations.minnit.chat/300057567744318/c/Panel?embed";
+    iframe.style.cssText = "border:none;width:100%;height:300px;";
+    modchatPanel.appendChild(iframe);
+    
+    document.body.appendChild(modchatPanel);
+    modchatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
+    
+    let offsetX = 0, offsetY = 0, isDragging = false;
+    
+    const onMouseMove = function(e) {
+      if(isDragging) {
+        modchatPanel.style.left = (e.clientX - offsetX) + "px";
+        modchatPanel.style.top = (e.clientY - offsetY) + "px";
+      }
+    };
+    
+    const onMouseUp = function() {
+      isDragging = false;
+      document.body.style.userSelect = "";
+    };
+    
+    h.onmousedown = function(e) {
+      isDragging = true;
+      offsetX = e.clientX - modchatPanel.offsetLeft;
+      offsetY = e.clientY - modchatPanel.offsetTop;
+      document.body.style.userSelect = "none";
+    };
+    
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    
+    modchatPanel._moveHandler = onMouseMove;
+    modchatPanel._upHandler = onMouseUp;
+    
+    const obs = new ResizeObserver(() => {
+      if(modchatPanel) modchatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
+    });
+    obs.observe(gui);
+    modchatPanel._observer = obs;
+  }
+
+  function muteAnimations() {
+    document.querySelectorAll("*").forEach(e => e.style.animation = "none");
+    alert("Animations muted");
+  }
+
+  function highlightSections() {
+    document.querySelectorAll("section,h1,h2").forEach(e => e.style.outline = "2px solid cyan");
+    alert("Sections highlighted");
+  }
+
+  function freezeInputs() {
+    document.querySelectorAll("input,textarea,select,button").forEach(e => e.disabled = true);
+    alert("Inputs frozen");
+  }
+
+  function pageStats() {
+    alert("Links: " + document.querySelectorAll("a").length + "\nImages: " + document.querySelectorAll("img").length + "\nHeadings: " + document.querySelectorAll("h1,h2,h3,h4,h5,h6").length);
+  }
+
+  function quickCopyElements() {
+    let t = Array.from(document.querySelectorAll("p")).map(e => e.innerText).join("\n");
+    navigator.clipboard.writeText(t);
+    alert("Paragraph text copied");
+  }
+
+  function toggleImages() {
+    document.querySelectorAll("img").forEach(i => i.style.display = i.style.display === "none" ? "block" : "none");
+  }
+
+  function themeOverride() {
+    document.body.style.background = document.body.style.background === "" ? "#111" : "";
+    document.body.style.color = document.body.style.color === "" ? "#eee" : "";
+  }
+
+  function ownerNotes() {
+    showPanelWithBack("Owner Notes", "Write notes here...");
+  }
+
+  function togglePanels() {
+    if(chatPanel) chatPanel.style.display = chatPanel.style.display === "none" ? "block" : "none";
+    if(modchatPanel) modchatPanel.style.display = modchatPanel.style.display === "none" ? "block" : "none";
+  }
+
+  var normalButtons = [
+    createButton("Calculator", showCalculatorFull),
+    createButton("YouTube Player", showYouTubePlayer),
+    createButton("Translate", showTranslatePanel),
+    createButton("Calendar", showCalendarPanel),
+    createButton("Dance Party", danceParty),
+    createButton("Mirror Mode", mirrorMode),
+    createButton("Chat", openChatPanel),
+    createButton("Games", showGamesPanel)
+  ];
+
+  var modButtons = [
+    createButton("Mute Animations", muteAnimations),
+    createButton("Highlight Sections", highlightSections),
+    createButton("Freeze Inputs", freezeInputs),
+    createButton("Page Stats", pageStats),
+    createButton("Quick Copy Elements", quickCopyElements),
+    createButton("Toggle Images", toggleImages),
+    createButton("Theme Override", themeOverride),
+    createButton("Mod Chat", openModChatPanel),
+  ];
+  
+  var ownerButtons = [
+    createButton("Owner Notes", ownerNotes),
+    createButton("Toggle Panels", togglePanels),
+    createButton("Inspect Elements", function() { document.querySelectorAll("*").forEach(e => e.style.outline = "2px solid red"); alert("Elements outlined"); }),
+    createButton("Copy All Text", function() { navigator.clipboard.writeText(document.body.innerText); alert("All text copied"); }),
+    createButton("Highlight Links", function() { document.querySelectorAll("a").forEach(e => e.style.outline = "2px solid cyan"); alert("All links highlighted"); }),
+    createButton("Clear User Data", function() { alert("Local and session storage cleared!"); })
+  ];
+
+  function buildGridForPanel(pt) {
+    gui.innerHTML = "";
+    var h = document.createElement("div");
+    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
+    var ti = document.createElement("strong");
+    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : "🌟 Fun Assistant";
+    h.appendChild(ti);
+    if(userRole !== "normal") {
+      var t = createButton("Switch Panel", function() { togglePanel(); });
+      h.appendChild(t);
+    }
+    var c = createButton("×", function() { 
+      gui.remove(); 
+      if(chatPanel) chatPanel.remove(); 
+      if(modchatPanel) modchatPanel.remove();
+      chatPanel = null; 
+      modchatPanel = null;
+    });
+    c.style.background = "none";
+    c.style.border = "none";
+    c.style.fontSize = "18px";
+    c.style.margin = "0";
+    h.appendChild(c);
+    gui.appendChild(h);
+    var g = document.createElement("div");
+    g.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:6px";
+    gui.appendChild(g);
+    if(pt === "normal") normalButtons.forEach(b => g.appendChild(b));
+    if(pt === "mod") modButtons.forEach(b => g.appendChild(b));
+    if(pt === "owner") ownerButtons.forEach(b => g.appendChild(b));
+  }
+
+  function togglePanel() {
+    if(userRole === "mod") {
+      currentPanel = currentPanel === "normal" ? "mod" : "normal";
+    } else if(userRole === "owner") {
+      if(currentPanel === "normal") currentPanel = "mod";
+      else if(currentPanel === "mod") currentPanel = "owner";
+      else currentPanel = "normal";
+    }
+    buildGridForPanel(currentPanel);
+  }
+
+  function showPanelWithBack(title, text) {
+    gui.innerHTML = "";
+    var h = document.createElement("div");
+    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
+    var ti = document.createElement("strong");
+    ti.textContent = title;
+    h.appendChild(ti);
+    var back = createButton("←", function() { buildGridForPanel(currentPanel); });
+    back.style.background = "none";
+    back.style.border = "none";
+    back.style.fontSize = "18px";
+    back.style.margin = "0";
+    h.appendChild(back);
+    gui.appendChild(h);
+    var p = document.createElement("div");
+    p.textContent = text;
+    gui.appendChild(p);
+  }
+
+  function showPasswordScreen() {
+    gui.innerHTML = "";
+    var t = document.createElement("h3");
+    t.textContent = "Enter Password";
+    gui.appendChild(t);
+    var i = document.createElement("input");
+    i.type = "password";
+    i.placeholder = "Password";
+    i.style.cssText = "width:100%;padding:5px;margin-bottom:5px;border-radius:6px;border:none";
+    gui.appendChild(i);
+    var s = createButton("Submit", function() {
+      (async () => {
+        var val = i.value || "";
+        var h = await sha256Hex(val);
+        if(h === OWNER_HASH) { passwordCorrect = true; userRole = "owner"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
+        else if(h === MOD_HASH) { passwordCorrect = true; userRole = "mod"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
+        else if(h === NORMAL_HASH) { passwordCorrect = true; userRole = "normal"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
+        else { gui.innerHTML = "<h3 style='color:red'>You do not have access to this!</h3>"; passwordCorrect = false; }
+      })();
+    }, { wide: true });
+    gui.appendChild(s);
+  }
+
+  showPasswordScreen();
+
+})();

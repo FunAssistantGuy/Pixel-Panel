@@ -702,14 +702,12 @@
 
     var iframe = document.createElement("iframe");
     iframe.src = "https://organizations.minnit.chat/300057567744318/c/Panel?embed";
-    iframe.style.cssText = "border:none;width:100%;height:500px;max-height:90vh;";
+    iframe.style.cssText = "border:none;width:100%;height:300px;"; // smaller height
     iframe.allowTransparency = true;
     modChatPanel.appendChild(iframe);
 
-    var powered = document.createElement("p");
-    powered.className = "powered-by-minnit";
-    powered.innerHTML = '<a href="https://minnit.chat" target="_blank">Free embeddable chatroom powered by Minnit Chat</a>';
-    modChatPanel.appendChild(powered);
+    // Hide "Powered by Minnit Chat"
+    // Removed the powered-by paragraph
 
     document.body.appendChild(modChatPanel);
     modChatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
@@ -738,6 +736,7 @@
     obs.observe(gui);
     modChatPanel._observer = obs;
 })
+    
   ];var ownerButtons = [
     createButton("Owner Notes", ownerNotes),
     createButton("Toggle Panels", togglePanels),

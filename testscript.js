@@ -922,7 +922,7 @@
     gui.appendChild(header);
 
     var contentWrapper = document.createElement("div");
-    contentWrapper.style.cssText = "max-height:500px;overflow-y:auto;overflow-x:hidden;";
+    contentWrapper.style.cssText = "max-height:450px;overflow-y:auto;overflow-x:hidden;";
     gui.appendChild(contentWrapper);
 
     var words = ["REACT", "HELLO", "WORLD", "GAMES", "BRAIN", "LIGHT", "PARTY", "MUSIC", "PHONE", "DREAM", "APPLE", "DANCE", "SWIFT", "CREAM", "BEACH"];
@@ -933,20 +933,20 @@
     var gameOver = false;
 
     var messageDiv = document.createElement("div");
-    messageDiv.style.cssText = "text-align:center;margin-bottom:8px;font-size:14px;color:#FFD700;min-height:20px;";
+    messageDiv.style.cssText = "text-align:center;margin-bottom:6px;font-size:13px;color:#FFD700;min-height:18px;";
     contentWrapper.appendChild(messageDiv);
 
     var boardDiv = document.createElement("div");
-    boardDiv.style.cssText = "display:grid;grid-template-rows:repeat(6, 1fr);gap:4px;margin:0 auto 10px;max-width:280px;";
+    boardDiv.style.cssText = "display:grid;grid-template-rows:repeat(6, 1fr);gap:3px;margin:0 auto 8px;max-width:220px;";
     
     var board = [];
     for(var i = 0; i < maxGuesses; i++) {
       var rowDiv = document.createElement("div");
-      rowDiv.style.cssText = "display:grid;grid-template-columns:repeat(5, 1fr);gap:4px;";
+      rowDiv.style.cssText = "display:grid;grid-template-columns:repeat(5, 1fr);gap:3px;";
       var row = [];
       for(var j = 0; j < 5; j++) {
         var cell = document.createElement("div");
-        cell.style.cssText = "width:48px;height:48px;border:2px solid #3a3a3c;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;color:white;background:#121213;";
+        cell.style.cssText = "width:38px;height:38px;border:2px solid #3a3a3c;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;color:white;background:#121213;";
         cell.dataset.row = i;
         cell.dataset.col = j;
         rowDiv.appendChild(cell);
@@ -958,7 +958,7 @@
     contentWrapper.appendChild(boardDiv);
 
     var keyboardDiv = document.createElement("div");
-    keyboardDiv.style.cssText = "display:flex;flex-direction:column;gap:4px;";
+    keyboardDiv.style.cssText = "display:flex;flex-direction:column;gap:3px;";
     
     var keys = [
       ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
@@ -968,15 +968,16 @@
 
     keys.forEach(function(keyRow) {
       var rowDiv = document.createElement("div");
-      rowDiv.style.cssText = "display:flex;gap:3px;justify-content:center;";
+      rowDiv.style.cssText = "display:flex;gap:2px;justify-content:center;";
       keyRow.forEach(function(key) {
         var keyBtn = document.createElement("button");
         keyBtn.innerText = key;
-        keyBtn.style.cssText = "padding:10px;border:none;border-radius:4px;background:#818384;color:white;font-weight:bold;cursor:pointer;font-size:11px;";
+        keyBtn.style.cssText = "padding:8px;border:none;border-radius:3px;background:#818384;color:white;font-weight:bold;cursor:pointer;font-size:10px;";
         if(key === "ENTER" || key === "⌫") {
-          keyBtn.style.padding = "10px 12px";
+          keyBtn.style.padding = "8px 10px";
+          keyBtn.style.fontSize = "9px";
         } else {
-          keyBtn.style.minWidth = "26px";
+          keyBtn.style.minWidth = "22px";
         }
         keyBtn.onmouseover = function() { if(!gameOver) this.style.filter = "brightness(1.2)"; };
         keyBtn.onmouseout = function() { this.style.filter = ""; };

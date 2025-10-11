@@ -649,61 +649,183 @@
     document.body.style.color = document.body.style.color === "" ? "#eee" : "";
   }
 
-  function showBanList() {
-    gui.innerHTML = "";
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
-    var ti = document.createElement("strong");
-    ti.textContent = "🚫 Ban List";
-    h.appendChild(ti);
-    var back = createButton("←", function() {
-      buildGridForPanel(currentPanel);
-    });
-    back.style.background = "none";
-    back.style.border = "none";
-    back.style.fontSize = "18px";
-    back.style.margin = "0";
-    h.appendChild(back);
-    gui.appendChild(h);
-
-    var iframe = document.createElement("iframe");
-    iframe.src = "https://organizations.minnit.chat/189701754316687/page/chatsettings?chat=ChatMenu&page=banlist";
-    iframe.style.cssText = "border:none;width:100%;height:400px;border-radius:8px;background:#14141f;";
-    gui.appendChild(iframe);
-
-    var note = document.createElement("div");
-    note.style.cssText = "margin-top:8px;padding:8px;background:#14141f;border-radius:8px;color:#999;font-size:12px;text-align:center;";
-    note.textContent = "If the ban list doesn't load, you may need to log in to Minnit first.";
-    gui.appendChild(note);
-  }
-
-  function showRulesPage() {
-    gui.innerHTML = "";
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
-    var ti = document.createElement("strong");
-    ti.textContent = "📋 Rules";
-    h.appendChild(ti);
-    var back = createButton("←", function() {
-      buildGridForPanel(currentPanel);
-    });
-    back.style.background = "none";
-    back.style.border = "none";
-    back.style.fontSize = "18px";
-    back.style.margin = "0";
-    h.appendChild(back);
-    gui.appendChild(h);
-
-    var iframe = document.createElement("iframe");
-    iframe.src = "https://organizations.minnit.chat/189701754316687/page/chatsettings?chat=ChatMenu&page=rules";
-    iframe.style.cssText = "border:none;width:100%;height:400px;border-radius:8px;background:#14141f;";
-    gui.appendChild(iframe);
-
-    var note = document.createElement("div");
-    note.style.cssText = "margin-top:8px;padding:8px;background:#14141f;border-radius:8px;color:#999;font-size:12px;text-align:center;";
-    note.textContent = "If the rules page doesn't load, you may need to log in to Minnit first.";
-    gui.appendChild(note);
-  }
-
   function ownerNotes() {
-    showPanelWithBack
+    showPanelWithBack("Owner Notes", "Write notes here...");
+  }
+
+  function togglePanels() {
+    if(chatPanel) chatPanel.style.display = chatPanel.style.display === "none" ? "block" : "none";
+  }
+
+  var normalButtons = [
+    createButton("Calculator", showCalculatorFull),
+    createButton("YouTube Player", showYouTubePlayer),
+    createButton("Translate", showTranslatePanel),
+    createButton("Calendar", showCalendarPanel),
+    createButton("Dance Party", danceParty),
+    createButton("Mirror Mode", mirrorMode),
+    createButton("Chat", openChatPanel),
+    createButton("Settings", function() { alert("Settings panel coming soon!") })
+  ];
+
+  var modButtons = [
+    createButton("Mute Animations", muteAnimations),
+    createButton("Highlight Sections", highlightSections),
+    createButton("Freeze Inputs", freezeInputs),
+    createButton("Page Stats", pageStats),
+    createButton("Quick Copy Elements", quickCopyElements),
+    createButton("Toggle Images", toggleImages),
+    createButton("Theme Override", themeOverride)
+    createButton("Mod Chat", function() {
+    if(document.getElementById("modChatPanel")) return;
+
+    var modChatPanel = document.createElement("div");
+    modChatPanel.id = "modChatPanel";
+    modChatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
+
+    var h = document.createElement("div");
+    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
+
+    var t = document.createElement("strong");
+    t.textContent = "🛡️ Mod Chat";
+    h.appendChild(t);
+
+    var close = createButton("×", function() {
+        modChatPanel.remove();
+    });
+    close.style.background = "none";
+    close.style.border = "none";
+    close.style.fontSize = "18px";
+    h.appendChild(close);
+
+    modChatPanel.appendChild(h);
+
+    var iframe = document.createElement("iframe");
+    iframe.src = "https://organizations.minnit.chat/300057567744318/c/Panel?embed";
+    iframe.style.cssText = "border:none;width:100%;height:500px;max-height:90vh;";
+    iframe.allowTransparency = true;
+    modChatPanel.appendChild(iframe);
+
+    var powered = document.createElement("p");
+    powered.className = "powered-by-minnit";
+    powered.innerHTML = '<a href="https://minnit.chat" target="_blank">Free embeddable chatroom powered by Minnit Chat</a>';
+    modChatPanel.appendChild(powered);
+
+    document.body.appendChild(modChatPanel);
+    modChatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
+
+    let offsetX = 0, offsetY = 0, isDragging = false;
+    h.onmousedown = function(e) {
+        isDragging = true;
+        offsetX = e.clientX - modChatPanel.offsetLeft;
+        offsetY = e.clientY - modChatPanel.offsetTop;
+        document.body.style.userSelect = "none";
+    };
+    document.onmousemove = function(e) {
+        if(isDragging) {
+            modChatPanel.style.left = (e.clientX - offsetX) + "px";
+            modChatPanel.style.top = (e.clientY - offsetY) + "px";
+        }
+    };
+    document.onmouseup = function() {
+        isDragging = false;
+        document.body.style.userSelect = "";
+    };
+
+    const obs = new ResizeObserver(() => {
+        if(modChatPanel) modChatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
+    });
+    obs.observe(gui);
+    modChatPanel._observer = obs;
+})
+  ];var ownerButtons = [
+    createButton("Owner Notes", ownerNotes),
+    createButton("Toggle Panels", togglePanels),
+    createButton("Inspect Elements", function() { document.querySelectorAll("*").forEach(e => e.style.outline = "2px solid red"); alert("Elements outlined"); }),
+    createButton("Copy All Text", function() { navigator.clipboard.writeText(document.body.innerText); alert("All text copied"); }),
+    createButton("Highlight Links", function() { document.querySelectorAll("a").forEach(e => e.style.outline = "2px solid cyan"); alert("All links highlighted"); }),
+    createButton("Clear User Data", function() { alert("Local and session storage cleared!"); })
+  ];
+
+  function buildGridForPanel(pt) {
+    gui.innerHTML = "";
+    var h = document.createElement("div");
+    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
+    var ti = document.createElement("strong");
+    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : "🌟 Fun Assistant";
+    h.appendChild(ti);
+    if(userRole !== "normal") {
+      var t = createButton("Switch Panel", function() { togglePanel(); });
+      h.appendChild(t);
+    }
+    var c = createButton("×", function() { gui.remove(); if(chatPanel) chatPanel.remove(); chatPanel = null; });
+    c.style.background = "none";
+    c.style.border = "none";
+    c.style.fontSize = "18px";
+    c.style.margin = "0";
+    h.appendChild(c);
+    gui.appendChild(h);
+    var g = document.createElement("div");
+    g.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:6px";
+    gui.appendChild(g);
+    if(pt === "normal") normalButtons.forEach(b => g.appendChild(b));
+    if(pt === "mod") modButtons.forEach(b => g.appendChild(b));
+    if(pt === "owner") ownerButtons.forEach(b => g.appendChild(b));
+  }
+
+  function togglePanel() {
+    if(userRole === "mod") {
+      currentPanel = currentPanel === "normal" ? "mod" : "normal";
+    } else if(userRole === "owner") {
+      if(currentPanel === "normal") currentPanel = "mod";
+      else if(currentPanel === "mod") currentPanel = "owner";
+      else currentPanel = "normal";
+    }
+    buildGridForPanel(currentPanel);
+  }
+
+  function showPanelWithBack(title, text) {
+    gui.innerHTML = "";
+    var h = document.createElement("div");
+    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
+    var ti = document.createElement("strong");
+    ti.textContent = title;
+    h.appendChild(ti);
+    var back = createButton("←", function() { buildGridForPanel(currentPanel); });
+    back.style.background = "none";
+    back.style.border = "none";
+    back.style.fontSize = "18px";
+    back.style.margin = "0";
+    h.appendChild(back);
+    gui.appendChild(h);
+    var p = document.createElement("div");
+    p.textContent = text;
+    gui.appendChild(p);
+  }
+
+  function showPasswordScreen() {
+    gui.innerHTML = "";
+    var t = document.createElement("h3");
+    t.textContent = "Enter Password";
+    gui.appendChild(t);
+    var i = document.createElement("input");
+    i.type = "password";
+    i.placeholder = "Password";
+    i.style.cssText = "width:100%;padding:5px;margin-bottom:5px;border-radius:6px;border:none";
+    gui.appendChild(i);
+    var s = createButton("Submit", function() {
+      (async () => {
+        var val = i.value || "";
+        var h = await sha256Hex(val);
+        if(h === OWNER_HASH) { passwordCorrect = true; userRole = "owner"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
+        else if(h === MOD_HASH) { passwordCorrect = true; userRole = "mod"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
+        else if(h === NORMAL_HASH) { passwordCorrect = true; userRole = "normal"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
+        else { gui.innerHTML = "<h3 style='color:red'>You do not have access to this!</h3>"; passwordCorrect = false; }
+      })();
+    }, { wide: true });
+    gui.appendChild(s);
+  }
+
+  showPasswordScreen();
+
+})();

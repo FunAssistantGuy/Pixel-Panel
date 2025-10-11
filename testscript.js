@@ -906,32 +906,35 @@
 
   function showWordleGame() {
     gui.innerHTML = "";
-    gui.style.width = "500px";
+    gui.style.width = "600px";
     gui.style.right = "";
     gui.style.left = "50%";
     gui.style.transform = "translateX(-50%)";
+    gui.style.top = "20px";
     
     var header = document.createElement("div");
-    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;";
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;";
     var title = document.createElement("strong");
+    title.style.fontSize = "20px";
     title.innerText = "📝 Wordle";
     var backBtn = createButton("←", function() {
       gui.style.width = "360px";
       gui.style.right = "50px";
       gui.style.left = "";
       gui.style.transform = "";
+      gui.style.top = "50px";
       showGamesPanel();
     });
     backBtn.style.background = "none";
     backBtn.style.border = "none";
-    backBtn.style.fontSize = "18px";
+    backBtn.style.fontSize = "22px";
     backBtn.style.margin = "0";
     header.appendChild(title);
     header.appendChild(backBtn);
     gui.appendChild(header);
 
     var contentWrapper = document.createElement("div");
-    contentWrapper.style.cssText = "max-height:380px;overflow-y:auto;overflow-x:hidden;";
+    contentWrapper.style.cssText = "max-height:500px;overflow-y:auto;overflow-x:hidden;";
     gui.appendChild(contentWrapper);
 
     var words = ["REACT", "HELLO", "WORLD", "GAMES", "BRAIN", "LIGHT", "PARTY", "MUSIC", "PHONE", "DREAM", "APPLE", "DANCE", "SWIFT", "CREAM", "BEACH"];
@@ -942,20 +945,20 @@
     var gameOver = false;
 
     var messageDiv = document.createElement("div");
-    messageDiv.style.cssText = "text-align:center;margin-bottom:6px;font-size:14px;color:#FFD700;min-height:18px;";
+    messageDiv.style.cssText = "text-align:center;margin-bottom:12px;font-size:16px;color:#FFD700;min-height:22px;font-weight:bold;";
     contentWrapper.appendChild(messageDiv);
 
     var boardDiv = document.createElement("div");
-    boardDiv.style.cssText = "display:grid;grid-template-rows:repeat(6, 1fr);gap:4px;margin:0 auto 10px;max-width:300px;";
+    boardDiv.style.cssText = "display:grid;grid-template-rows:repeat(6, 1fr);gap:6px;margin:0 auto 16px;max-width:380px;";
     
     var board = [];
     for(var i = 0; i < maxGuesses; i++) {
       var rowDiv = document.createElement("div");
-      rowDiv.style.cssText = "display:grid;grid-template-columns:repeat(5, 1fr);gap:4px;";
+      rowDiv.style.cssText = "display:grid;grid-template-columns:repeat(5, 1fr);gap:6px;";
       var row = [];
       for(var j = 0; j < 5; j++) {
         var cell = document.createElement("div");
-        cell.style.cssText = "width:50px;height:50px;border:2px solid #3a3a3c;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;color:white;background:#121213;";
+        cell.style.cssText = "width:65px;height:65px;border:3px solid #3a3a3c;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:bold;color:white;background:#121213;border-radius:4px;";
         cell.dataset.row = i;
         cell.dataset.col = j;
         rowDiv.appendChild(cell);
@@ -967,7 +970,7 @@
     contentWrapper.appendChild(boardDiv);
 
     var keyboardDiv = document.createElement("div");
-    keyboardDiv.style.cssText = "display:flex;flex-direction:column;gap:4px;";
+    keyboardDiv.style.cssText = "display:flex;flex-direction:column;gap:6px;max-width:550px;margin:0 auto;";
     
     var keys = [
       ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
@@ -977,15 +980,16 @@
 
     keys.forEach(function(keyRow) {
       var rowDiv = document.createElement("div");
-      rowDiv.style.cssText = "display:flex;gap:4px;justify-content:center;";
+      rowDiv.style.cssText = "display:flex;gap:5px;justify-content:center;";
       keyRow.forEach(function(key) {
         var keyBtn = document.createElement("button");
         keyBtn.innerText = key;
-        keyBtn.style.cssText = "padding:12px;border:none;border-radius:4px;background:#818384;color:white;font-weight:bold;cursor:pointer;font-size:13px;";
+        keyBtn.style.cssText = "padding:16px;border:none;border-radius:6px;background:#818384;color:white;font-weight:bold;cursor:pointer;font-size:16px;";
         if(key === "ENTER" || key === "⌫") {
-          keyBtn.style.padding = "12px 18px";
+          keyBtn.style.padding = "16px 24px";
+          keyBtn.style.fontSize = "14px";
         } else {
-          keyBtn.style.minWidth = "32px";
+          keyBtn.style.minWidth = "42px";
         }
         keyBtn.onmouseover = function() { if(!gameOver) this.style.filter = "brightness(1.2)"; };
         keyBtn.onmouseout = function() { this.style.filter = ""; };

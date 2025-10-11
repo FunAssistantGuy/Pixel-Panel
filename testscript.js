@@ -22,6 +22,7 @@
   const OWNER_HASH = "95125a0d7c7370659219459f0f21a6745a2564cdb27e0c06a0bdd3f7cf564103";
   const MOD_HASH = "52a09997d29387622dee692f5b74988075a4a4dd2bd0f481661fc3d8c68dac62";
   const NORMAL_HASH = "36c8d8697265145d5dd65559fafcd4819fad3036551bb02a6b9b259c55545634";
+  const SCHOOL_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
 
   function createButton(t, f, o) {
     var b = document.createElement("button");
@@ -1361,14 +1362,363 @@
     createButton("Clear User Data", function() { alert("Local and session storage cleared!"); })
   ];
 
+  var schoolButtons = [
+    createButton("📅 Calendar", showCalendarPanel),
+    createButton("🔔 Bell Schedule", showBellSchedule),
+    createButton("🎵 Focus Music", showFocusMusic),
+    createButton("📝 Study Notes", showStudyNotes),
+    createButton("⏰ Class Timer", showClassTimer),
+    createButton("📚 Resources", showResources)
+  ];
+
+  function showBellSchedule() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🔔 Bell Schedule";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var schedules = {
+      regular: [
+        { period: "Zero Period", time: "7:15 AM - 8:00 AM" },
+        { period: "First Bell", time: "8:13 AM" },
+        { period: "Homeroom", time: "8:18 AM - 8:23 AM" },
+        { period: "Period 1", time: "8:23 AM - 9:12 AM" },
+        { period: "Period 2", time: "9:17 AM - 10:06 AM" },
+        { period: "Period 3", time: "10:11 AM - 11:00 AM" },
+        { period: "Period 4", time: "11:05 AM - 11:54 AM" },
+        { period: "Lunch", time: "11:54 AM - 12:32 PM" },
+        { period: "SSR", time: "12:37 PM - 12:52 PM" },
+        { period: "Period 5", time: "12:52 PM - 1:41 PM" },
+        { period: "Period 6", time: "1:46 PM - 2:35 PM" }
+      ],
+      staff: [
+        { period: "Zero Period", time: "7:15 AM - 8:00 AM" },
+        { period: "First Bell", time: "8:13 AM" },
+        { period: "Homeroom", time: "8:18 AM - 8:22 AM" },
+        { period: "Period 1", time: "8:22 AM - 8:56 AM" },
+        { period: "Period 2", time: "9:01 AM - 9:35 AM" },
+        { period: "Period 3", time: "9:40 AM - 10:14 AM" },
+        { period: "Period 4", time: "10:19 AM - 10:53 AM" },
+        { period: "Nutrition", time: "10:53 AM - 11:12 AM" },
+        { period: "Period 5", time: "11:17 AM - 11:51 AM" },
+        { period: "Period 6", time: "11:56 AM - 12:30 PM" }
+      ],
+      minimum: [
+        { period: "First Bell", time: "8:13 AM" },
+        { period: "Homeroom & Period 1", time: "8:18 AM - 8:49 AM" },
+        { period: "Period 2", time: "8:54 AM - 9:20 AM" },
+        { period: "Period 3", time: "9:25 AM - 9:51 AM" },
+        { period: "Period 4", time: "9:56 AM - 10:22 AM" },
+        { period: "Nutrition", time: "10:22 AM - 10:47 AM" },
+        { period: "Period 5", time: "10:53 AM - 11:19 AM" },
+        { period: "Period 6", time: "11:24 AM - 11:50 AM" }
+      ]
+    };
+
+    var currentSchedule = "regular";
+
+    var tabContainer = document.createElement("div");
+    tabContainer.style.cssText = "display:flex;gap:4px;margin-bottom:10px;";
+
+    var regularTab = createButton("Regular", function() {
+      currentSchedule = "regular";
+      renderSchedule();
+      updateTabs();
+    });
+    regularTab.style.margin = "0";
+    regularTab.style.flex = "1";
+
+    var staffTab = createButton("Staff Day", function() {
+      currentSchedule = "staff";
+      renderSchedule();
+      updateTabs();
+    });
+    staffTab.style.margin = "0";
+    staffTab.style.flex = "1";
+
+    var minimumTab = createButton("Minimum", function() {
+      currentSchedule = "minimum";
+      renderSchedule();
+      updateTabs();
+    });
+    minimumTab.style.margin = "0";
+    minimumTab.style.flex = "1";
+
+    tabContainer.appendChild(regularTab);
+    tabContainer.appendChild(staffTab);
+    tabContainer.appendChild(minimumTab);
+    gui.appendChild(tabContainer);
+
+    var scheduleDiv = document.createElement("div");
+    scheduleDiv.id = "scheduleContent";
+    gui.appendChild(scheduleDiv);
+
+    function updateTabs() {
+      regularTab.style.background = currentSchedule === "regular" ? "#4CAF50" : "#2a2a40";
+      staffTab.style.background = currentSchedule === "staff" ? "#4CAF50" : "#2a2a40";
+      minimumTab.style.background = currentSchedule === "minimum" ? "#4CAF50" : "#2a2a40";
+    }
+
+    function renderSchedule() {
+      scheduleDiv.innerHTML = "";
+      scheduleDiv.style.cssText = "background:#14141f;border-radius:8px;padding:12px;max-height:300px;overflow-y:auto;";
+      
+      schedules[currentSchedule].forEach(function(item) {
+        var itemDiv = document.createElement("div");
+        itemDiv.style.cssText = "padding:10px;margin-bottom:6px;background:#2a2a40;border-radius:6px;display:flex;justify-content:space-between;align-items:center;";
+        
+        var periodSpan = document.createElement("span");
+        periodSpan.style.fontWeight = "bold";
+        periodSpan.innerText = item.period;
+        
+        var timeSpan = document.createElement("span");
+        timeSpan.style.color = "#b0b0b0";
+        timeSpan.style.fontSize = "13px";
+        timeSpan.innerText = item.time;
+        
+        itemDiv.appendChild(periodSpan);
+        itemDiv.appendChild(timeSpan);
+        scheduleDiv.appendChild(itemDiv);
+      });
+    }
+
+    renderSchedule();
+    updateTabs();
+  }
+
+  function showFocusMusic() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🎵 Focus Music";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var playlists = [
+      { name: "Lofi Hip Hop", url: "https://www.youtube.com/embed/jfKfPfyJRdk" },
+      { name: "Study Beats", url: "https://www.youtube.com/embed/5qap5aO4i9A" },
+      { name: "Piano Relaxing", url: "https://www.youtube.com/embed/lTRiuFIWV54" }
+    ];
+
+    var currentIndex = 0;
+    var iframe = document.createElement("iframe");
+    iframe.width = "100%";
+    iframe.height = "200";
+    iframe.frameBorder = "0";
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+    iframe.allowFullscreen = true;
+    iframe.style.borderRadius = "8px";
+    iframe.src = playlists[currentIndex].url;
+    gui.appendChild(iframe);
+
+    var nameDiv = document.createElement("div");
+    nameDiv.style.cssText = "text-align:center;margin-top:8px;font-weight:bold;";
+    nameDiv.innerText = playlists[currentIndex].name;
+    gui.appendChild(nameDiv);
+
+    var btnContainer = document.createElement("div");
+    btnContainer.style.cssText = "display:flex;gap:6px;margin-top:8px;";
+    
+    btnContainer.appendChild(createButton("Previous", function() {
+      currentIndex = (currentIndex - 1 + playlists.length) % playlists.length;
+      iframe.src = playlists[currentIndex].url;
+      nameDiv.innerText = playlists[currentIndex].name;
+    }, { wide: true }));
+    
+    btnContainer.appendChild(createButton("Next", function() {
+      currentIndex = (currentIndex + 1) % playlists.length;
+      iframe.src = playlists[currentIndex].url;
+      nameDiv.innerText = playlists[currentIndex].name;
+    }, { wide: true }));
+    
+    gui.appendChild(btnContainer);
+  }
+
+  function showStudyNotes() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "📝 Study Notes";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var notesData = {};
+    try {
+      var saved = localStorage.getItem("studyNotes");
+      if(saved) notesData = JSON.parse(saved);
+    } catch(e) {}
+
+    var textarea = document.createElement("textarea");
+    textarea.placeholder = "Write your study notes here...";
+    textarea.value = notesData.notes || "";
+    textarea.style.cssText = "width:100%;height:200px;padding:8px;border-radius:6px;border:1px solid #3a3a3c;background:#14141f;color:white;font-family:sans-serif;font-size:14px;resize:vertical;";
+    gui.appendChild(textarea);
+
+    var saveBtn = createButton("💾 Save Notes", function() {
+      try {
+        localStorage.setItem("studyNotes", JSON.stringify({ notes: textarea.value }));
+        var msg = document.createElement("div");
+        msg.innerText = "✓ Notes saved!";
+        msg.style.cssText = "text-align:center;margin-top:8px;color:#4CAF50;font-size:13px;";
+        gui.appendChild(msg);
+        setTimeout(function() { msg.remove(); }, 2000);
+      } catch(e) {
+        alert("Error saving notes");
+      }
+    }, { wide: true, bg: "#4CAF50" });
+    saveBtn.style.marginTop = "8px";
+    gui.appendChild(saveBtn);
+  }
+
+  function showClassTimer() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "⏰ Class Timer";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var display = document.createElement("div");
+    display.style.cssText = "text-align:center;font-size:48px;font-weight:bold;padding:30px;background:#14141f;border-radius:8px;margin-bottom:12px;";
+    display.innerText = "45:00";
+    gui.appendChild(display);
+
+    var timerInterval = null;
+    var timeLeft = 45 * 60;
+    var isRunning = false;
+
+    var btnContainer = document.createElement("div");
+    btnContainer.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:6px;";
+
+    var startBtn = createButton("▶ Start", function() {
+      if(!isRunning) {
+        isRunning = true;
+        timerInterval = setInterval(function() {
+          timeLeft--;
+          if(timeLeft <= 0) {
+            clearInterval(timerInterval);
+            isRunning = false;
+            alert("Time's up!");
+            timeLeft = 45 * 60;
+          }
+          var mins = Math.floor(timeLeft / 60);
+          var secs = timeLeft % 60;
+          display.innerText = mins + ":" + (secs < 10 ? "0" : "") + secs;
+        }, 1000);
+      }
+    }, { wide: true, bg: "#4CAF50" });
+
+    var pauseBtn = createButton("⏸ Pause", function() {
+      if(isRunning) {
+        clearInterval(timerInterval);
+        isRunning = false;
+      }
+    }, { wide: true, bg: "#FF9800" });
+
+    var resetBtn = createButton("↻ Reset", function() {
+      clearInterval(timerInterval);
+      isRunning = false;
+      timeLeft = 45 * 60;
+      display.innerText = "45:00";
+    }, { wide: true, bg: "#f44336" });
+
+    var preset15 = createButton("15 min", function() {
+      clearInterval(timerInterval);
+      isRunning = false;
+      timeLeft = 15 * 60;
+      display.innerText = "15:00";
+    }, { wide: true });
+
+    btnContainer.appendChild(startBtn);
+    btnContainer.appendChild(pauseBtn);
+    btnContainer.appendChild(resetBtn);
+    btnContainer.appendChild(preset15);
+    gui.appendChild(btnContainer);
+  }
+
+  function showResources() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "📚 Study Resources";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var resources = [
+      { name: "Khan Academy", url: "https://www.khanacademy.org", icon: "📖" },
+      { name: "Quizlet", url: "https://quizlet.com", icon: "🎯" },
+      { name: "Wolfram Alpha", url: "https://www.wolframalpha.com", icon: "🔬" },
+      { name: "Google Scholar", url: "https://scholar.google.com", icon: "🎓" }
+    ];
+
+    var container = document.createElement("div");
+    container.style.cssText = "display:grid;gap:8px;";
+
+    resources.forEach(function(resource) {
+      var btn = createButton(resource.icon + " " + resource.name, function() {
+        window.open(resource.url, "_blank");
+      }, { wide: true, bg: "#2196F3" });
+      container.appendChild(btn);
+    });
+
+    gui.appendChild(container);
+  }
+
   function buildGridForPanel(pt) {
     gui.innerHTML = "";
     var h = document.createElement("div");
     h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
     var ti = document.createElement("strong");
-    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : "🌟 Fun Assistant";
+    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : pt === "school" ? "🎓 School Zone" : "🌟 Fun Assistant";
     h.appendChild(ti);
-    if(userRole !== "normal") {
+    if(userRole !== "normal" && userRole !== "school") {
       var t = createButton("Switch Panel", function() { togglePanel(); });
       h.appendChild(t);
     }
@@ -1391,6 +1741,7 @@
     if(pt === "normal") normalButtons.forEach(b => g.appendChild(b));
     if(pt === "mod") modButtons.forEach(b => g.appendChild(b));
     if(pt === "owner") ownerButtons.forEach(b => g.appendChild(b));
+    if(pt === "school") schoolButtons.forEach(b => g.appendChild(b));
   }
 
   function togglePanel() {
@@ -1440,6 +1791,7 @@
         if(h === OWNER_HASH) { passwordCorrect = true; userRole = "owner"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
         else if(h === MOD_HASH) { passwordCorrect = true; userRole = "mod"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
         else if(h === NORMAL_HASH) { passwordCorrect = true; userRole = "normal"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
+        else if(h === SCHOOL_HASH) { passwordCorrect = true; userRole = "school"; currentPanel = "school"; buildGridForPanel(currentPanel); }
         else { gui.innerHTML = "<h3 style='color:red'>You do not have access to this!</h3>"; passwordCorrect = false; }
       })();
     }, { wide: true });

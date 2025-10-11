@@ -8,7 +8,7 @@
 
   var keyboardListener = null;
   var currentFocus = { type: "display" };
-  var chatPanel = null, modchatPanel + null, passwordCorrect = false, userRole = "normal", currentPanel = "normal";
+  var chatPanel = null, modchatPanel = null, passwordCorrect = false, userRole = "normal", currentPanel = "normal";
 
   async function sha256Hex(str) {
     const buf = new TextEncoder().encode(str);

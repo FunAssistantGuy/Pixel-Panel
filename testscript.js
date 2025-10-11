@@ -591,6 +591,7 @@
     grid.appendChild(createButton("🐍 Snake", showSnakeGame, { wide: true, bg: "#4CAF50" }));
     grid.appendChild(createButton("🐦 Flappy Bird", showFlappyBirdGame, { wide: true, bg: "#2196F3" }));
     grid.appendChild(createButton("🎨 Drawing Pad", showDrawingPad, { wide: true, bg: "#FF9800" }));
+    grid.appendChild(createButton("📝 Wordle", showWordleGame, { wide: true, bg: "#6AAA64" }));
     
     gui.appendChild(grid);
   }
@@ -900,6 +901,187 @@
 
     canvas.addEventListener("mouseleave", function() {
       isDrawing = false;
+    });
+  }
+
+  function showWordleGame() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "📝 Wordle";
+    var backBtn = createButton("←", function() {
+      showGamesPanel();
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var words = ["REACT", "HELLO", "WORLD", "GAMES", "BRAIN", "LIGHT", "PARTY", "MUSIC", "PHONE", "DREAM", "APPLE", "DANCE", "SWIFT", "CREAM", "BEACH"];
+    var targetWord = words[Math.floor(Math.random() * words.length)];
+    var currentRow = 0;
+    var currentCol = 0;
+    var maxGuesses = 6;
+    var gameOver = false;
+
+    var messageDiv = document.createElement("div");
+    messageDiv.style.cssText = "text-align:center;margin-bottom:8px;font-size:14px;color:#FFD700;min-height:20px;";
+    gui.appendChild(messageDiv);
+
+    var boardDiv = document.createElement("div");
+    boardDiv.style.cssText = "display:grid;grid-template-rows:repeat(6, 1fr);gap:5px;margin:0 auto 12px;max-width:300px;";
+    
+    var board = [];
+    for(var i = 0; i < maxGuesses; i++) {
+      var rowDiv = document.createElement("div");
+      rowDiv.style.cssText = "display:grid;grid-template-columns:repeat(5, 1fr);gap:5px;";
+      var row = [];
+      for(var j = 0; j < 5; j++) {
+        var cell = document.createElement("div");
+        cell.style.cssText = "width:50px;height:50px;border:2px solid #3a3a3c;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;color:white;background:#121213;";
+        cell.dataset.row = i;
+        cell.dataset.col = j;
+        rowDiv.appendChild(cell);
+        row.push(cell);
+      }
+      boardDiv.appendChild(rowDiv);
+      board.push(row);
+    }
+    gui.appendChild(boardDiv);
+
+    var keyboardDiv = document.createElement("div");
+    keyboardDiv.style.cssText = "display:flex;flex-direction:column;gap:5px;";
+    
+    var keys = [
+      ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+      ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+      ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
+    ];
+
+    keys.forEach(function(keyRow) {
+      var rowDiv = document.createElement("div");
+      rowDiv.style.cssText = "display:flex;gap:4px;justify-content:center;";
+      keyRow.forEach(function(key) {
+        var keyBtn = document.createElement("button");
+        keyBtn.innerText = key;
+        keyBtn.style.cssText = "padding:12px;border:none;border-radius:4px;background:#818384;color:white;font-weight:bold;cursor:pointer;font-size:12px;";
+        if(key === "ENTER" || key === "⌫") {
+          keyBtn.style.padding = "12px 16px";
+        } else {
+          keyBtn.style.minWidth = "28px";
+        }
+        keyBtn.onmouseover = function() { if(!gameOver) this.style.filter = "brightness(1.2)"; };
+        keyBtn.onmouseout = function() { this.style.filter = ""; };
+        keyBtn.onclick = function() {
+          handleKey(key);
+        };
+        keyBtn.dataset.key = key;
+        rowDiv.appendChild(keyBtn);
+      });
+      keyboardDiv.appendChild(rowDiv);
+    });
+    gui.appendChild(keyboardDiv);
+
+    function handleKey(key) {
+      if(gameOver) return;
+      
+      if(key === "ENTER") {
+        if(currentCol === 5) {
+          checkGuess();
+        } else {
+          messageDiv.innerText = "Not enough letters!";
+          setTimeout(function() { messageDiv.innerText = ""; }, 1000);
+        }
+      } else if(key === "⌫") {
+        if(currentCol > 0) {
+          currentCol--;
+          board[currentRow][currentCol].innerText = "";
+        }
+      } else {
+        if(currentCol < 5) {
+          board[currentRow][currentCol].innerText = key;
+          currentCol++;
+        }
+      }
+    }
+
+    function checkGuess() {
+      var guess = "";
+      for(var i = 0; i < 5; i++) {
+        guess += board[currentRow][i].innerText;
+      }
+      
+      var targetLetters = targetWord.split("");
+      var guessLetters = guess.split("");
+      var colors = ["#3a3a3c", "#3a3a3c", "#3a3a3c", "#3a3a3c", "#3a3a3c"];
+      var used = [false, false, false, false, false];
+      
+      for(var i = 0; i < 5; i++) {
+        if(guessLetters[i] === targetLetters[i]) {
+          colors[i] = "#6aaa64";
+          used[i] = true;
+        }
+      }
+      
+      for(var i = 0; i < 5; i++) {
+        if(colors[i] === "#6aaa64") continue;
+        for(var j = 0; j < 5; j++) {
+          if(!used[j] && guessLetters[i] === targetLetters[j]) {
+            colors[i] = "#c9b458";
+            used[j] = true;
+            break;
+          }
+        }
+      }
+      
+      for(var i = 0; i < 5; i++) {
+        board[currentRow][i].style.background = colors[i];
+        board[currentRow][i].style.borderColor = colors[i];
+        
+        var keyBtn = keyboardDiv.querySelector('[data-key="' + guessLetters[i] + '"]');
+        if(keyBtn) {
+          var currentBg = keyBtn.style.background;
+          if(colors[i] === "#6aaa64") {
+            keyBtn.style.background = "#6aaa64";
+          } else if(colors[i] === "#c9b458" && currentBg !== "rgb(106, 170, 100)") {
+            keyBtn.style.background = "#c9b458";
+          } else if(colors[i] === "#3a3a3c" && currentBg !== "rgb(106, 170, 100)" && currentBg !== "rgb(201, 180, 88)") {
+            keyBtn.style.background = "#3a3a3c";
+          }
+        }
+      }
+      
+      if(guess === targetWord) {
+        messageDiv.innerText = "🎉 You won!";
+        messageDiv.style.color = "#6aaa64";
+        gameOver = true;
+        return;
+      }
+      
+      currentRow++;
+      currentCol = 0;
+      
+      if(currentRow === maxGuesses) {
+        messageDiv.innerText = "Game Over! Word was: " + targetWord;
+        messageDiv.style.color = "#ff6b6b";
+        gameOver = true;
+      }
+    }
+
+    document.addEventListener("keydown", function wordleKeyHandler(e) {
+      if(gameOver) return;
+      var key = e.key.toUpperCase();
+      if(key === "ENTER") {
+        handleKey("ENTER");
+      } else if(key === "BACKSPACE") {
+        handleKey("⌫");
+      } else if(/^[A-Z]$/.test(key)) {
+        handleKey(key);
+      }
     });
   }
 

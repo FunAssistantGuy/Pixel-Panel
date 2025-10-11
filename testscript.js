@@ -175,89 +175,88 @@
     };
   }
 
-  // --- CHAT PANEL ---
   function openChatPanel() {
     if(chatPanel) return;
     chatPanel = document.createElement("div");
-    chatPanel.id = "funChatBox";
-    chatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
+    chatPanel.id = "funChatBoxNormal"; // unique ID
+    chatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);";
     
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
+    const header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
+    const title = document.createElement("strong");
+    title.textContent = "💬 Chat";
+    header.appendChild(title);
     
-    var t = document.createElement("strong");
-    t.textContent = "💬 Chat";
-    h.appendChild(t);
+    const close = document.createElement("button");
+    close.textContent = "×";
+    close.onclick = () => { chatPanel.remove(); chatPanel = null; };
+    close.style.cssText = "background:none;border:none;font-size:18px";
+    header.appendChild(close);
     
-    var close = createButton("×", function() {
-      chatPanel.remove();
-      chatPanel = null;
-    });
-    close.style.background = "none";
-    close.style.border = "none";
-    close.style.fontSize = "18px";
-    h.appendChild(close);
-    
-    chatPanel.appendChild(h);
-    
-    var iframe = document.createElement("iframe");
+    chatPanel.appendChild(header);
+
+    const iframe = document.createElement("iframe");
     iframe.src = "https://organizations.minnit.chat/189701754316687/c/ChatMenu?embed";
     iframe.style.cssText = "border:none;width:100%;height:300px;";
     chatPanel.appendChild(iframe);
-    
+
     document.body.appendChild(chatPanel);
-    chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
 
-    makeDraggable(chatPanel, h);
+    makeDraggable(chatPanel, header);
+}
 
-    const obs = new ResizeObserver(() => {
-      if(chatPanel) chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    });
-    obs.observe(gui);
-    chatPanel._observer = obs;
-  }
-
-  // --- MOD CHAT PANEL ---
-  function openModChatPanel() {
+function openModChatPanel() {
     if(modchatPanel) return;
     modchatPanel = document.createElement("div");
-    modchatPanel.id = "funChatBox";
-    modchatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);transform:scale(0.95);";
+    modchatPanel.id = "funChatBoxMod"; // unique ID
+    modchatPanel.style.cssText = "position:fixed;right:50px;width:360px;background:black;color:white;font-family:sans-serif;z-index:999998;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);";
     
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
+    const header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;cursor:move";
+    const title = document.createElement("strong");
+    title.textContent = "💬 Mod Chat";
+    header.appendChild(title);
     
-    var t = document.createElement("strong");
-    t.textContent = "💬 Mod Chat";
-    h.appendChild(t);
+    const close = document.createElement("button");
+    close.textContent = "×";
+    close.onclick = () => { modchatPanel.remove(); modchatPanel = null; };
+    close.style.cssText = "background:none;border:none;font-size:18px";
+    header.appendChild(close);
     
-    var close = createButton("×", function() {
-      modchatPanel.remove();
-      modchatPanel = null;
-    });
-    close.style.background = "none";
-    close.style.border = "none";
-    close.style.fontSize = "18px";
-    h.appendChild(close);
-    
-    modchatPanel.appendChild(h);
-    
-    var iframe = document.createElement("iframe");
+    modchatPanel.appendChild(header);
+
+    const iframe = document.createElement("iframe");
     iframe.src = "https://organizations.minnit.chat/300057567744318/c/Panel?embed";
     iframe.style.cssText = "border:none;width:100%;height:300px;";
     modchatPanel.appendChild(iframe);
-    
+
     document.body.appendChild(modchatPanel);
-    modchatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
 
-    makeDraggable(modchatPanel, h);
+    makeDraggable(modchatPanel, header);
+}
 
-    const obs = new ResizeObserver(() => {
-      if(modchatPanel) modchatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
+// Draggable helper (per panel)
+function makeDraggable(panel, header) {
+    let offsetX = 0, offsetY = 0, dragging = false;
+
+    header.onmousedown = function(e) {
+        dragging = true;
+        offsetX = e.clientX - panel.offsetLeft;
+        offsetY = e.clientY - panel.offsetTop;
+        document.body.style.userSelect = "none";
+    }
+
+    document.addEventListener("mousemove", function(e) {
+        if(!dragging) return;
+        panel.style.left = (e.clientX - offsetX) + "px";
+        panel.style.top = (e.clientY - offsetY) + "px";
     });
-    obs.observe(gui);
-    modchatPanel._observer = obs;
-  }
+
+    document.addEventListener("mouseup", function() {
+        dragging = false;
+        document.body.style.userSelect = "";
+    });
+}
 
   // --- NORMAL AND MOD BUTTONS ---
   var normalButtons = [

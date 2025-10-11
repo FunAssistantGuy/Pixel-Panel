@@ -1263,7 +1263,66 @@
   }
 
   function ownerNotes() {
-    showPanelWithBack("Owner Notes", "Write notes here...");
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "📝 Owner Notes";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var notesData = {};
+    try {
+      var saved = localStorage.getItem("ownerNotes");
+      if(saved) notesData = JSON.parse(saved);
+    } catch(e) {}
+
+    var textarea = document.createElement("textarea");
+    textarea.placeholder = "Write your notes here...";
+    textarea.value = notesData.notes || "";
+    textarea.style.cssText = "width:100%;height:250px;padding:8px;border-radius:6px;border:1px solid #3a3a3c;background:#14141f;color:white;font-family:sans-serif;font-size:14px;resize:vertical;";
+    gui.appendChild(textarea);
+
+    var saveBtn = createButton("💾 Save Notes", function() {
+      try {
+        localStorage.setItem("ownerNotes", JSON.stringify({ notes: textarea.value }));
+        var msg = document.createElement("div");
+        msg.innerText = "✓ Notes saved!";
+        msg.style.cssText = "text-align:center;margin-top:8px;color:#4CAF50;font-size:13px;";
+        gui.appendChild(msg);
+        setTimeout(function() { msg.remove(); }, 2000);
+      } catch(e) {
+        alert("Error saving notes: " + e.message);
+      }
+    }, { wide: true, bg: "#4CAF50" });
+    saveBtn.style.marginTop = "8px";
+    gui.appendChild(saveBtn);
+
+    var clearBtn = createButton("🗑️ Clear Notes", function() {
+      if(confirm("Are you sure you want to clear all notes?")) {
+        textarea.value = "";
+        try {
+          localStorage.removeItem("ownerNotes");
+          var msg = document.createElement("div");
+          msg.innerText = "✓ Notes cleared!";
+          msg.style.cssText = "text-align:center;margin-top:8px;color:#ff6b6b;font-size:13px;";
+          gui.appendChild(msg);
+          setTimeout(function() { msg.remove(); }, 2000);
+        } catch(e) {
+          alert("Error clearing notes: " + e.message);
+        }
+      }
+    }, { wide: true, bg: "#ff6b6b" });
+    clearBtn.style.marginTop = "4px";
+    gui.appendChild(clearBtn);
   }
 
   function togglePanels() {

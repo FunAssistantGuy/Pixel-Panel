@@ -906,11 +906,20 @@
 
   function showWordleGame() {
     gui.innerHTML = "";
+    gui.style.width = "500px";
+    gui.style.right = "";
+    gui.style.left = "50%";
+    gui.style.transform = "translateX(-50%)";
+    
     var header = document.createElement("div");
     header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;";
     var title = document.createElement("strong");
     title.innerText = "📝 Wordle";
     var backBtn = createButton("←", function() {
+      gui.style.width = "360px";
+      gui.style.right = "50px";
+      gui.style.left = "";
+      gui.style.transform = "";
       showGamesPanel();
     });
     backBtn.style.background = "none";
@@ -933,20 +942,20 @@
     var gameOver = false;
 
     var messageDiv = document.createElement("div");
-    messageDiv.style.cssText = "text-align:center;margin-bottom:4px;font-size:11px;color:#FFD700;min-height:14px;";
+    messageDiv.style.cssText = "text-align:center;margin-bottom:6px;font-size:14px;color:#FFD700;min-height:18px;";
     contentWrapper.appendChild(messageDiv);
 
     var boardDiv = document.createElement("div");
-    boardDiv.style.cssText = "display:grid;grid-template-rows:repeat(6, 1fr);gap:2px;margin:0 auto 6px;max-width:170px;";
+    boardDiv.style.cssText = "display:grid;grid-template-rows:repeat(6, 1fr);gap:4px;margin:0 auto 10px;max-width:300px;";
     
     var board = [];
     for(var i = 0; i < maxGuesses; i++) {
       var rowDiv = document.createElement("div");
-      rowDiv.style.cssText = "display:grid;grid-template-columns:repeat(5, 1fr);gap:2px;";
+      rowDiv.style.cssText = "display:grid;grid-template-columns:repeat(5, 1fr);gap:4px;";
       var row = [];
       for(var j = 0; j < 5; j++) {
         var cell = document.createElement("div");
-        cell.style.cssText = "width:30px;height:30px;border:2px solid #3a3a3c;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:bold;color:white;background:#121213;";
+        cell.style.cssText = "width:50px;height:50px;border:2px solid #3a3a3c;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;color:white;background:#121213;";
         cell.dataset.row = i;
         cell.dataset.col = j;
         rowDiv.appendChild(cell);
@@ -958,7 +967,7 @@
     contentWrapper.appendChild(boardDiv);
 
     var keyboardDiv = document.createElement("div");
-    keyboardDiv.style.cssText = "display:flex;flex-direction:column;gap:2px;";
+    keyboardDiv.style.cssText = "display:flex;flex-direction:column;gap:4px;";
     
     var keys = [
       ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
@@ -968,16 +977,15 @@
 
     keys.forEach(function(keyRow) {
       var rowDiv = document.createElement("div");
-      rowDiv.style.cssText = "display:flex;gap:2px;justify-content:center;";
+      rowDiv.style.cssText = "display:flex;gap:4px;justify-content:center;";
       keyRow.forEach(function(key) {
         var keyBtn = document.createElement("button");
         keyBtn.innerText = key;
-        keyBtn.style.cssText = "padding:6px;border:none;border-radius:3px;background:#818384;color:white;font-weight:bold;cursor:pointer;font-size:9px;";
+        keyBtn.style.cssText = "padding:12px;border:none;border-radius:4px;background:#818384;color:white;font-weight:bold;cursor:pointer;font-size:13px;";
         if(key === "ENTER" || key === "⌫") {
-          keyBtn.style.padding = "6px 8px";
-          keyBtn.style.fontSize = "8px";
+          keyBtn.style.padding = "12px 18px";
         } else {
-          keyBtn.style.minWidth = "18px";
+          keyBtn.style.minWidth = "32px";
         }
         keyBtn.onmouseover = function() { if(!gameOver) this.style.filter = "brightness(1.2)"; };
         keyBtn.onmouseout = function() { this.style.filter = ""; };

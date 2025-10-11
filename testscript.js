@@ -3,12 +3,41 @@
   if(document.getElementById("funGuiBox")) document.getElementById("funGuiBox").remove();
   var gui = document.createElement("div");
   gui.id = "funGuiBox";
-  gui.style.cssText = "position:fixed;top:50px;right:50px;width:360px;background:#1e1e2f;color:white;font-family:sans-serif;z-index:999999;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);";
+  updateGuiColors();
   document.body.appendChild(gui);
 
   var keyboardListener = null;
   var currentFocus = { type: "display" };
   var chatPanel = null, modchatPanel = null, passwordCorrect = false, userRole = "normal", currentPanel = "normal";
+  
+  // Settings with defaults
+  var settings = {
+    colors: {
+      background: "#1e1e2f",
+      text: "#ffffff",
+      buttonBg: "#2a2a40",
+      buttonText: "#ffffff",
+      displayBg: "#14141f",
+      accentColor: "#ffd39a"
+    },
+    chat: {
+      autoOpen: false,
+      defaultPosition: "below", // "below" or "custom"
+      rememberPosition: true
+    },
+    shortcuts: {
+      closeAll: "`"
+    },
+    behavior: {
+      autoHideOnTabSwitch: false
+    }
+  };
+
+  var isGuiHidden = false;
+
+  function updateGuiColors() {
+    gui.style.cssText = `position:fixed;top:50px;right:50px;width:360px;background:${settings.colors.background};color:${settings.colors.text};font-family:sans-serif;z-index:999999;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);`;
+  }
 
   async function sha256Hex(str) {
     const buf = new TextEncoder().encode(str);
@@ -25,7 +54,7 @@
     var b = document.createElement("button");
     b.type = "button";
     b.innerText = t;
-    b.style.cssText = "background:#2a2a40;border:none;border-radius:8px;padding:10px 8px;color:white;cursor:pointer;margin:4px;font-size:15px";
+    b.style.cssText = `background:${settings.colors.buttonBg};border:none;border-radius:8px;padding:10px 8px;color:${settings.colors.buttonText};cursor:pointer;margin:4px;font-size:15px`;
     if(o && o.wide) b.style.width = "100%";
     if(o && o.bg) b.style.background = o.bg;
     b.onmouseover = function() { this.style.filter = "brightness(1.08)"; };
@@ -36,7 +65,7 @@
 
   function makeDisplay() {
     var disp = document.createElement("div");
-    disp.style.cssText = "min-height:40px;background:#14141f;border-radius:8px;padding:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;cursor:text;";
+    disp.style.cssText = `min-height:40px;background:${settings.colors.displayBg};border-radius:8px;padding:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;cursor:text;`;
     disp.id = "calcDisplay";
     disp.tabIndex = 0;
     return disp;
@@ -735,6 +764,285 @@
     if(modchatPanel) modchatPanel.style.display = modchatPanel.style.display === "none" ? "block" : "none";
   }
 
+  function showSettingsPanel() {
+    gui.innerHTML = "";
+    var h = document.createElement("div");
+    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:12px";
+    var ti = document.createElement("strong");
+    ti.textContent = "⚙️ Settings";
+    h.appendChild(ti);
+    var back = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    back.style.background = "none";
+    back.style.border = "none";
+    back.style.fontSize = "18px";
+    back.style.margin = "0";
+    h.appendChild(back);
+    gui.appendChild(h);
+
+    // Container (not scrollable)
+    var container = document.createElement("div");
+    gui.appendChild(container);
+
+    // Color Settings Section
+    var colorSection = document.createElement("div");
+    colorSection.style.cssText = `background:${settings.colors.displayBg};padding:12px;border-radius:8px;margin-bottom:12px;`;
+    var colorTitle = document.createElement("div");
+    colorTitle.style.cssText = "font-weight:bold;margin-bottom:8px;font-size:16px;";
+    colorTitle.textContent = "🎨 Color Customization";
+    colorSection.appendChild(colorTitle);
+
+    function createColorInput(label, settingKey) {
+      var wrapper = document.createElement("div");
+      wrapper.style.cssText = "margin-bottom:8px;";
+      var lbl = document.createElement("label");
+      lbl.textContent = label + ": ";
+      lbl.style.cssText = "display:block;font-size:13px;margin-bottom:4px;";
+      var inputWrapper = document.createElement("div");
+      inputWrapper.style.cssText = "display:flex;gap:8px;align-items:center;";
+      var input = document.createElement("input");
+      input.type = "text";
+      input.value = settings.colors[settingKey];
+      input.placeholder = "#000000";
+      input.style.cssText = "flex:1;padding:6px;border-radius:6px;border:1px solid #555;background:#2a2a40;color:white;font-size:13px;";
+      var colorPicker = document.createElement("input");
+      colorPicker.type = "color";
+      colorPicker.value = settings.colors[settingKey];
+      colorPicker.style.cssText = "width:40px;height:32px;border:none;border-radius:6px;cursor:pointer;";
+      
+      input.addEventListener("input", function() {
+        if(/^#[0-9A-Fa-f]{6}$/.test(input.value)) {
+          settings.colors[settingKey] = input.value;
+          colorPicker.value = input.value;
+          applySettings();
+        }
+      });
+      
+      colorPicker.addEventListener("input", function() {
+        settings.colors[settingKey] = colorPicker.value;
+        input.value = colorPicker.value;
+        applySettings();
+      });
+      
+      inputWrapper.appendChild(input);
+      inputWrapper.appendChild(colorPicker);
+      wrapper.appendChild(lbl);
+      wrapper.appendChild(inputWrapper);
+      return wrapper;
+    }
+
+    colorSection.appendChild(createColorInput("Background", "background"));
+    colorSection.appendChild(createColorInput("Text Color", "text"));
+    colorSection.appendChild(createColorInput("Button Background", "buttonBg"));
+    colorSection.appendChild(createColorInput("Button Text", "buttonText"));
+    colorSection.appendChild(createColorInput("Display Background", "displayBg"));
+    colorSection.appendChild(createColorInput("Accent Color", "accentColor"));
+    container.appendChild(colorSection);
+
+    // Chat Settings Section
+    var chatSection = document.createElement("div");
+    chatSection.style.cssText = `background:${settings.colors.displayBg};padding:12px;border-radius:8px;margin-bottom:12px;`;
+    var chatTitle = document.createElement("div");
+    chatTitle.style.cssText = "font-weight:bold;margin-bottom:8px;font-size:16px;";
+    chatTitle.textContent = "💬 Chat Settings";
+    chatSection.appendChild(chatTitle);
+
+    var autoOpenWrapper = document.createElement("div");
+    autoOpenWrapper.style.cssText = "margin-bottom:8px;display:flex;align-items:center;gap:8px;";
+    var autoOpenCheck = document.createElement("input");
+    autoOpenCheck.type = "checkbox";
+    autoOpenCheck.checked = settings.chat.autoOpen;
+    autoOpenCheck.style.cssText = "width:18px;height:18px;cursor:pointer;";
+    autoOpenCheck.addEventListener("change", function() {
+      settings.chat.autoOpen = autoOpenCheck.checked;
+    });
+    var autoOpenLabel = document.createElement("label");
+    autoOpenLabel.textContent = "Auto-open chat on load";
+    autoOpenLabel.style.cursor = "pointer";
+    autoOpenLabel.onclick = function() { autoOpenCheck.click(); };
+    autoOpenWrapper.appendChild(autoOpenCheck);
+    autoOpenWrapper.appendChild(autoOpenLabel);
+    chatSection.appendChild(autoOpenWrapper);
+
+    var rememberPosWrapper = document.createElement("div");
+    rememberPosWrapper.style.cssText = "margin-bottom:8px;display:flex;align-items:center;gap:8px;";
+    var rememberPosCheck = document.createElement("input");
+    rememberPosCheck.type = "checkbox";
+    rememberPosCheck.checked = settings.chat.rememberPosition;
+    rememberPosCheck.style.cssText = "width:18px;height:18px;cursor:pointer;";
+    rememberPosCheck.addEventListener("change", function() {
+      settings.chat.rememberPosition = rememberPosCheck.checked;
+    });
+    var rememberPosLabel = document.createElement("label");
+    rememberPosLabel.textContent = "Remember chat position";
+    rememberPosLabel.style.cursor = "pointer";
+    rememberPosLabel.onclick = function() { rememberPosCheck.click(); };
+    rememberPosWrapper.appendChild(rememberPosCheck);
+    rememberPosWrapper.appendChild(rememberPosLabel);
+    chatSection.appendChild(rememberPosWrapper);
+
+    container.appendChild(chatSection);
+
+    // Behavior Settings Section
+    var behaviorSection = document.createElement("div");
+    behaviorSection.style.cssText = `background:${settings.colors.displayBg};padding:12px;border-radius:8px;margin-bottom:12px;`;
+    var behaviorTitle = document.createElement("div");
+    behaviorTitle.style.cssText = "font-weight:bold;margin-bottom:8px;font-size:16px;";
+    behaviorTitle.textContent = "⚡ Behavior Settings";
+    behaviorSection.appendChild(behaviorTitle);
+
+    var autoHideWrapper = document.createElement("div");
+    autoHideWrapper.style.cssText = "margin-bottom:8px;display:flex;align-items:center;gap:8px;";
+    var autoHideCheck = document.createElement("input");
+    autoHideCheck.type = "checkbox";
+    autoHideCheck.checked = settings.behavior.autoHideOnTabSwitch;
+    autoHideCheck.style.cssText = "width:18px;height:18px;cursor:pointer;";
+    autoHideCheck.addEventListener("change", function() {
+      settings.behavior.autoHideOnTabSwitch = autoHideCheck.checked;
+    });
+    var autoHideLabel = document.createElement("label");
+    autoHideLabel.textContent = "Auto-hide when switching tabs";
+    autoHideLabel.style.cursor = "pointer";
+    autoHideLabel.onclick = function() { autoHideCheck.click(); };
+    autoHideWrapper.appendChild(autoHideCheck);
+    autoHideWrapper.appendChild(autoHideLabel);
+    behaviorSection.appendChild(autoHideWrapper);
+
+    var helpText = document.createElement("div");
+    helpText.style.cssText = "font-size:11px;color:#999;margin-top:4px;";
+    helpText.textContent = "Press ` to show/hide panels when enabled";
+    behaviorSection.appendChild(helpText);
+
+    container.appendChild(behaviorSection);
+
+    // Keyboard Shortcuts Section
+    var shortcutSection = document.createElement("div");
+    shortcutSection.style.cssText = `background:${settings.colors.displayBg};padding:12px;border-radius:8px;margin-bottom:12px;`;
+    var shortcutTitle = document.createElement("div");
+    shortcutTitle.style.cssText = "font-weight:bold;margin-bottom:8px;font-size:16px;";
+    shortcutTitle.textContent = "⌨️ Keyboard Shortcut";
+    shortcutSection.appendChild(shortcutTitle);
+
+    var wrapper = document.createElement("div");
+    wrapper.style.cssText = "margin-bottom:8px;";
+    var lbl = document.createElement("label");
+    lbl.textContent = "Close All Panels/Chats: ";
+    lbl.style.cssText = "display:block;font-size:13px;margin-bottom:4px;";
+    var input = document.createElement("input");
+    input.type = "text";
+    input.value = settings.shortcuts.closeAll;
+    input.maxLength = 1;
+    input.style.cssText = "width:100%;padding:6px;border-radius:6px;border:1px solid #555;background:#2a2a40;color:white;font-size:13px;text-align:center;";
+    input.addEventListener("input", function() {
+      settings.shortcuts.closeAll = input.value || "`";
+    });
+    wrapper.appendChild(lbl);
+    wrapper.appendChild(input);
+    shortcutSection.appendChild(wrapper);
+
+    container.appendChild(shortcutSection);
+
+    // Action Buttons
+    var btnWrapper = document.createElement("div");
+    btnWrapper.style.cssText = "display:flex;gap:8px;margin-top:12px;";
+    
+    var resetBtn = createButton("Reset to Defaults", function() {
+      if(confirm("Reset all settings to defaults?")) {
+        settings = {
+          colors: {
+            background: "#1e1e2f",
+            text: "#ffffff",
+            buttonBg: "#2a2a40",
+            buttonText: "#ffffff",
+            displayBg: "#14141f",
+            accentColor: "#ffd39a"
+          },
+          chat: {
+            autoOpen: false,
+            defaultPosition: "below",
+            rememberPosition: true
+          },
+          shortcuts: {
+            closeAll: "`"
+          },
+          behavior: {
+            autoHideOnTabSwitch: false
+          }
+        };
+        applySettings();
+        showSettingsPanel();
+      }
+    }, { wide: false });
+    resetBtn.style.flex = "1";
+    
+    var saveBtn = createButton("✓ Done", function() {
+      buildGridForPanel(currentPanel);
+    }, { wide: false });
+    saveBtn.style.flex = "1";
+    saveBtn.style.background = "#4CAF50";
+    
+    btnWrapper.appendChild(resetBtn);
+    btnWrapper.appendChild(saveBtn);
+    gui.appendChild(btnWrapper);
+  }
+
+  function applySettings() {
+    updateGuiColors();
+    // Rebuild the current view to apply new colors
+    if(gui.querySelector("h3")) {
+      // On password screen, don't rebuild
+      return;
+    }
+    var currentContent = gui.innerHTML;
+    if(currentContent.includes("Settings")) {
+      showSettingsPanel();
+    }
+  }
+
+  // Global keyboard shortcut listener
+  document.addEventListener("keydown", function(e) {
+    if(e.key === settings.shortcuts.closeAll) {
+      e.preventDefault();
+      
+      // Toggle visibility if auto-hide is enabled
+      if(settings.behavior.autoHideOnTabSwitch && isGuiHidden) {
+        // Show everything
+        if(gui) gui.style.display = "block";
+        if(chatPanel) chatPanel.style.display = "block";
+        if(modchatPanel) modchatPanel.style.display = "block";
+        isGuiHidden = false;
+      } else {
+        // Close/hide everything
+        if(chatPanel) {
+          chatPanel.remove();
+          chatPanel = null;
+        }
+        if(modchatPanel) {
+          modchatPanel.remove();
+          modchatPanel = null;
+        }
+        if(gui && passwordCorrect) {
+          gui.remove();
+        }
+        isGuiHidden = false;
+      }
+    }
+  });
+
+  // Tab visibility change listener
+  document.addEventListener("visibilitychange", function() {
+    if(settings.behavior.autoHideOnTabSwitch && passwordCorrect) {
+      if(document.hidden) {
+        // Tab is hidden - hide all panels
+        if(gui) gui.style.display = "none";
+        if(chatPanel) chatPanel.style.display = "none";
+        if(modchatPanel) modchatPanel.style.display = "none";
+        isGuiHidden = true;
+      }
+    }
+  });
+
   var normalButtons = [
     createButton("Calculator", showCalculatorFull),
     createButton("YouTube Player", showYouTubePlayer),
@@ -743,7 +1051,7 @@
     createButton("Dance Party", danceParty),
     createButton("Mirror Mode", mirrorMode),
     createButton("Chat", openChatPanel),
-    createButton("Settings", function() { alert("Settings panel coming soon!") })
+    createButton("Settings", showSettingsPanel)
   ];
 
   var modButtons = [

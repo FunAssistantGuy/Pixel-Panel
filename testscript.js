@@ -675,7 +675,7 @@
     createButton("Page Stats", pageStats),
     createButton("Quick Copy Elements", quickCopyElements),
     createButton("Toggle Images", toggleImages),
-    createButton("Theme Override", themeOverride)
+    createButton("Theme Override", themeOverride),
     createButton("Mod Chat", function() {
     if(document.getElementById("modChatPanel")) return;
 

@@ -1,4 +1,4 @@
-// Fun Assistant - Complete Script
+// Fun Assistant - Complete Script with Games
 (function() {
   if(document.getElementById("funGuiBox")) document.getElementById("funGuiBox").remove();
   var gui = document.createElement("div");
@@ -9,6 +9,8 @@
   var keyboardListener = null;
   var currentFocus = { type: "display" };
   var chatPanel = null, modchatPanel = null, passwordCorrect = false, userRole = "normal", currentPanel = "normal";
+  var snakeInterval = null;
+  var flappyInterval = null;
 
   async function sha256Hex(str) {
     const buf = new TextEncoder().encode(str);
@@ -566,6 +568,540 @@
     renderCalendar();
   }
 
+  function showGamesPanel() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🎮 Games";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var grid = document.createElement("div");
+    grid.style.cssText = "display:grid;grid-template-columns:1fr;gap:8px;";
+    
+    grid.appendChild(createButton("🐍 Snake", showSnakeGame, { wide: true, bg: "#4CAF50" }));
+    grid.appendChild(createButton("🐦 Flappy Bird", showFlappyBirdGame, { wide: true, bg: "#2196F3" }));
+    grid.appendChild(createButton("🎨 Drawing Pad", showDrawingPad, { wide: true, bg: "#FF9800" }));
+    grid.appendChild(createButton("📝 Wordle", showWordleGame, { wide: true, bg: "#6AAA64" }));
+    
+    gui.appendChild(grid);
+  }
+
+  function showSnakeGame() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🐍 Snake";
+    var backBtn = createButton("←", function() {
+      if(snakeInterval) clearInterval(snakeInterval);
+      snakeInterval = null;
+      showGamesPanel();
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var scoreDiv = document.createElement("div");
+    scoreDiv.style.cssText = "text-align:center;margin-bottom:8px;font-size:16px;color:#4CAF50;";
+    scoreDiv.innerText = "Score: 0";
+    gui.appendChild(scoreDiv);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = 320;
+    canvas.height = 320;
+    canvas.style.cssText = "display:block;margin:0 auto;background:#14141f;border-radius:8px;";
+    gui.appendChild(canvas);
+
+    var ctx = canvas.getContext("2d");
+    var gridSize = 20;
+    var tileCount = 16;
+    var snake = [{ x: 8, y: 8 }];
+    var dx = 0, dy = 0;
+    var food = { x: 5, y: 5 };
+    var score = 0;
+
+    function drawGame() {
+      ctx.fillStyle = "#14141f";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = "#4CAF50";
+      snake.forEach(segment => {
+        ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 2, gridSize - 2);
+      });
+      
+      ctx.fillStyle = "#FF5252";
+      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+    }
+
+    function moveSnake() {
+      if(dx === 0 && dy === 0) return;
+      
+      var head = { x: snake[0].x + dx, y: snake[0].y + dy };
+      
+      if(head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+        clearInterval(snakeInterval);
+        snakeInterval = null;
+        alert("Game Over! Score: " + score);
+        showGamesPanel();
+        return;
+      }
+      
+      for(var i = 0; i < snake.length; i++) {
+        if(snake[i].x === head.x && snake[i].y === head.y) {
+          clearInterval(snakeInterval);
+          snakeInterval = null;
+          alert("Game Over! Score: " + score);
+          showGamesPanel();
+          return;
+        }
+      }
+      
+      snake.unshift(head);
+      
+      if(head.x === food.x && head.y === food.y) {
+        score++;
+        scoreDiv.innerText = "Score: " + score;
+        food = {
+          x: Math.floor(Math.random() * tileCount),
+          y: Math.floor(Math.random() * tileCount)
+        };
+      } else {
+        snake.pop();
+      }
+      
+      drawGame();
+    }
+
+    var snakeKeyHandler = function(e) {
+      if(e.key === "ArrowUp" && dy === 0) { dx = 0; dy = -1; }
+      else if(e.key === "ArrowDown" && dy === 0) { dx = 0; dy = 1; }
+      else if(e.key === "ArrowLeft" && dx === 0) { dx = -1; dy = 0; }
+      else if(e.key === "ArrowRight" && dx === 0) { dx = 1; dy = 0; }
+    };
+    
+    document.addEventListener("keydown", snakeKeyHandler);
+
+    drawGame();
+    snakeInterval = setInterval(moveSnake, 150);
+  }
+
+  function showFlappyBirdGame() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🐦 Flappy Bird";
+    var backBtn = createButton("←", function() {
+      if(flappyInterval) clearInterval(flappyInterval);
+      flappyInterval = null;
+      showGamesPanel();
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var scoreDiv = document.createElement("div");
+    scoreDiv.style.cssText = "text-align:center;margin-bottom:8px;font-size:16px;color:#2196F3;";
+    scoreDiv.innerText = "Score: 0";
+    gui.appendChild(scoreDiv);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = 320;
+    canvas.height = 400;
+    canvas.style.cssText = "display:block;margin:0 auto;background:#87CEEB;border-radius:8px;cursor:pointer;";
+    gui.appendChild(canvas);
+
+    var ctx = canvas.getContext("2d");
+    var bird = { x: 50, y: 200, velocity: 0, radius: 12 };
+    var pipes = [];
+    var score = 0;
+    var gameStarted = false;
+
+    function drawBird() {
+      ctx.fillStyle = "#FFD700";
+      ctx.beginPath();
+      ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawPipes() {
+      ctx.fillStyle = "#228B22";
+      pipes.forEach(pipe => {
+        ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+        ctx.fillRect(pipe.x, pipe.top + pipe.gap, pipe.width, canvas.height);
+      });
+    }
+
+    function drawGame() {
+      ctx.fillStyle = "#87CEEB";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      drawPipes();
+      drawBird();
+      
+      if(!gameStarted) {
+        ctx.fillStyle = "white";
+        ctx.font = "20px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Click to Start", canvas.width / 2, canvas.height / 2);
+      }
+    }
+
+    function updateGame() {
+      if(!gameStarted) return;
+      
+      bird.velocity += 0.5;
+      bird.y += bird.velocity;
+      
+      if(bird.y + bird.radius > canvas.height || bird.y - bird.radius < 0) {
+        endGame();
+        return;
+      }
+      
+      pipes.forEach(pipe => {
+        pipe.x -= 2;
+        
+        if(pipe.x + pipe.width < 0) {
+          pipes.shift();
+          score++;
+          scoreDiv.innerText = "Score: " + score;
+        }
+        
+        if(bird.x + bird.radius > pipe.x && bird.x - bird.radius < pipe.x + pipe.width) {
+          if(bird.y - bird.radius < pipe.top || bird.y + bird.radius > pipe.top + pipe.gap) {
+            endGame();
+            return;
+          }
+        }
+      });
+      
+      if(pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 150) {
+        var gapY = Math.random() * (canvas.height - 200) + 100;
+        pipes.push({
+          x: canvas.width,
+          top: gapY - 75,
+          gap: 150,
+          width: 50
+        });
+      }
+      
+      drawGame();
+    }
+
+    function endGame() {
+      clearInterval(flappyInterval);
+      flappyInterval = null;
+      alert("Game Over! Score: " + score);
+      showGamesPanel();
+    }
+
+    canvas.addEventListener("click", function() {
+      if(!gameStarted) {
+        gameStarted = true;
+        flappyInterval = setInterval(updateGame, 20);
+      }
+      bird.velocity = -8;
+    });
+
+    drawGame();
+  }
+
+  function showDrawingPad() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🎨 Drawing Pad";
+    var backBtn = createButton("←", function() {
+      showGamesPanel();
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var controls = document.createElement("div");
+    controls.style.cssText = "display:flex;gap:8px;margin-bottom:8px;align-items:center;";
+    
+    var colorPicker = document.createElement("input");
+    colorPicker.type = "color";
+    colorPicker.value = "#FFFFFF";
+    colorPicker.style.cssText = "width:40px;height:30px;border:none;border-radius:6px;cursor:pointer;";
+    
+    var sizeSlider = document.createElement("input");
+    sizeSlider.type = "range";
+    sizeSlider.min = "1";
+    sizeSlider.max = "20";
+    sizeSlider.value = "3";
+    sizeSlider.style.cssText = "flex:1;";
+    
+    var clearBtn = createButton("Clear", function() {
+      ctx.fillStyle = "#14141f";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    });
+    clearBtn.style.margin = "0";
+    
+    controls.appendChild(colorPicker);
+    controls.appendChild(sizeSlider);
+    controls.appendChild(clearBtn);
+    gui.appendChild(controls);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = 320;
+    canvas.height = 320;
+    canvas.style.cssText = "display:block;margin:0 auto;background:#14141f;border-radius:8px;cursor:crosshair;";
+    gui.appendChild(canvas);
+
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#14141f";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    var isDrawing = false;
+
+    canvas.addEventListener("mousedown", function(e) {
+      isDrawing = true;
+      var rect = canvas.getBoundingClientRect();
+      ctx.beginPath();
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    canvas.addEventListener("mousemove", function(e) {
+      if(!isDrawing) return;
+      var rect = canvas.getBoundingClientRect();
+      ctx.strokeStyle = colorPicker.value;
+      ctx.lineWidth = sizeSlider.value;
+      ctx.lineCap = "round";
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke();
+    });
+
+    canvas.addEventListener("mouseup", function() {
+      isDrawing = false;
+    });
+
+    canvas.addEventListener("mouseleave", function() {
+      isDrawing = false;
+    });
+  }
+
+  function showWordleGame() {
+    gui.innerHTML = "";
+    gui.style.width = "600px";
+    gui.style.right = "";
+    gui.style.left = "50%";
+    gui.style.transform = "translateX(-50%)";
+    gui.style.top = "20px";
+    
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;";
+    var title = document.createElement("strong");
+    title.style.fontSize = "20px";
+    title.innerText = "📝 Wordle";
+    var backBtn = createButton("←", function() {
+      gui.style.width = "360px";
+      gui.style.right = "50px";
+      gui.style.left = "";
+      gui.style.transform = "";
+      gui.style.top = "50px";
+      showGamesPanel();
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "22px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var contentWrapper = document.createElement("div");
+    contentWrapper.style.cssText = "max-height:500px;overflow-y:auto;overflow-x:hidden;";
+    gui.appendChild(contentWrapper);
+
+    var words = ["ABOUT","ABOVE","ABUSE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIEN","ALIGN","ALIKE","ALIVE","ALLOW","ALONE","ALONG","ALTER","ANGEL","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE","ARISE","ARMOR","ARMY","AROSE","ARRAY","ARROW","ASIDE","ASSET","ATOM","ATTIC","AUDIO","AVOID","AWAKE","AWARD","AWARE","BADLY","BAKER","BASES","BASIC","BASIN","BASIS","BEACH","BEGAN","BEGIN","BEING","BELOW","BENCH","BILLY","BIRTH","BLACK","BLADE","BLAME","BLANK","BLAST","BLEED","BLEND","BLESS","BLIND","BLINK","BLOCK","BLOOD","BLOOM","BLOWN","BOARD","BOOST","BOOTH","BOUND","BOWEL","BOXER","BRAIN","BRAKE","BRAND","BRASS","BRAVE","BREAD","BREAK","BREED","BRIEF","BRING","BROAD","BROKE","BROWN","BRUSH","BUILD","BUILT","BUNCH","BURST","BUYER","CABLE","CACHE","CALIF","CAMEL","CANAL","CANDY","CANON","CARRY","CARVE","CATCH","CAUSE","CHAIN","CHAIR","CHAOS","CHARM","CHART","CHASE","CHEAP","CHEAT","CHECK","CHEEK","CHEST","CHIEF","CHILD","CHINA","CHOSE","CIVIL","CLAIM","CLASS","CLEAN","CLEAR","CLICK","CLIFF","CLIMB","CLOCK","CLONE","CLOSE","CLOTH","CLOUD","COACH","COAST","CORAL","COUCH","COULD","COUNT","COURT","COVER","CRACK","CRAFT","CRASH","CRAZY","CREAM","CREEK","CRIME","CRISP","CROSS","CROWD","CROWN","CRUDE","CRUEL","CRUSH","CURVE","CYCLE","DAILY","DAIRY","DANCE","DATED","DEALT","DEATH","DEBUT","DECAY","DELAY","DELTA","DENSE","DEPTH","DOING","DOUBT","DOZEN","DRAFT","DRAIN","DRANK","DRAWN","DREAM","DRESS","DRILL","DRINK","DRIVE","DROVE","DROWN","DUTCH","DYING","EAGER","EARLY","EARTH","EIGHT","ELECT","ELITE","EMPTY","ENEMY","ENJOY","ENTER","ENTRY","EQUAL","ERROR","ERUPT","ESSAY","ETHER","ETHIC","EVENT","EVERY","EXACT","EXERT","EXIST","EXTRA","FAITH","FALSE","FAULT","FENCE","FIBER","FIELD","FIFTH","FIFTY","FIGHT","FINAL","FIRST","FIXED","FLASH","FLEET","FLESH","FLOOR","FLUID","FOCUS","FORCE","FORTH","FORTY","FORUM","FOUND","FRAME","FRANK","FRAUD","FRESH","FRONT","FROST","FRUIT","FULLY","FUNNY","GIANT","GIVEN","GLASS","GLOBE","GLORY","GRACE","GRADE","GRAIN","GRAND","GRANT","GRAPH","GRASS","GRAVE","GREAT","GREED","GREEK","GREEN","GREET","GROSS","GROUP","GROVE","GROWN","GUARD","GUESS","GUEST","GUIDE","GUILD","GUILT","HABIT","HAPPY","HARRY","HARSH","HATE","HAUNT","HEART","HEAVY","HEDGE","HELLO","HENRY","HORSE","HOTEL","HOUSE","HUMAN","HUMOR","IDEAL","IMAGE","IMPLY","INDEX","INNER","INPUT","IRONY","ISSUE","IVORY","JAPAN","JIMMY","JOINT","JONES","JUDGE","KNOWN","LABEL","LABOR","LARGE","LASER","LATER","LAUGH","LAYER","LEARN","LEASE","LEAST","LEAVE","LEGAL","LEMON","LEVEL","LEVER","LIGHT","LIMIT","LINEN","LIVED","LIVER","LOCAL","LOGIC","LOOSE","LOWER","LOYAL","LUCKY","LUNCH","LYING","MAGIC","MAJOR","MAKER","MARCH","MARRY","MATCH","MATRIX","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR","MINUS","MIXED","MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVED","MOVIE","MUSIC","NEEDS","NERVE","NEVER","NEWLY","NIGHT","NINTH","NOBLE","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR","OCEAN","OFFER","OFTEN","ORDER","OTHER","OUGHT","OUTER","OWNER","PAINT","PANEL","PANIC","PAPER","PARTY","PASTA","PATCH","PAUSE","PEACE","PEACH","PEARL","PHASE","PHONE","PHOTO","PIANO","PIECE","PILOT","PITCH","PLACE","PLAIN","PLANE","PLANT","PLATE","PLAZA","PLEAD","POINT","POKER","POLAR","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRISON","PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE","QUOTA","QUOTE","RADIO","RAISE","RANCH","RANGE","RANKS","RAPID","RATIO","REACH","REACT","REALM","REBEL","REFER","RELAX","RELAY","REMOTE","REPLY","RIDER","RIDGE","RIFLE","RIGHT","RIGID","RISKY","RIVAL","RIVER","ROBIN","ROCKY","ROMAN","ROUGH","ROUND","ROUTE","ROYAL","RUGBY","RURAL","SCALE","SCARE","SCARY","SCENE","SCOPE","SCORE","SCOUT","SCREW","SCRIPT","SEIZE","SENSE","SERVE","SETUP","SEVEN","SHADE","SHAFT","SHAKE","SHALL","SHAPE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHINE","SHINY","SHOCK","SHOOT","SHORT","SHOWN","SHRUG","SIDED","SIGHT","SILLY","SINCE","SIXTH","SIXTY","SIZED","SKILL","SLAVE","SLEEP","SLICE","SLIDE","SLOPE","SMALL","SMART","SMELL","SMILE","SMITH","SMOKE","SNAKE","SNEAK","SOLID","SOLVE","SOUND","SOUTH","SPACE","SPARE","SPARK","SPEAK","SPEED","SPEND","SPENT","SPLIT","SPOKE","SPORT","SPRAY","SQUAD","STACK","STAFF","STAGE","STAKE","STAND","START","STATE","STEAM","STEEL","STEEP","STICK","STILL","STOCK","STONE","STOOD","STORE","STORM","STORY","STRIP","STUCK","STUDY","STUFF","STYLE","SUGAR","SUITE","SUNNY","SUPER","SURGE","SWEET","SWIFT","SWING","SWISS","SWORD","TABLE","TAKEN","TASTE","TAXES","TEACH","TERNA","THANK","THEFT","THEIR","THEME","THERE","THESE","THICK","THING","THINK","THIRD","THOSE","THREE","THREW","THROW","THUMB","TIGHT","TIMER","TIRED","TITLE","TODAY","TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TOXIC","TRACE","TRACK","TRACT","TRADE","TRAIL","TRAIN","TRAIT","TRASH","TREAT","TREND","TRIAL","TRIBE","TRICK","TRIED","TROOP","TRULY","TRUNK","TRUST","TRUTH","TWICE","TWIST","UNCLE","UNDER","UNDUE","UNION","UNITY","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VAGUE","VALID","VALUE","VENUE","VERSE","VIDEO","VIRUS","VISIT","VITAL","VOCAL","VOICE","VOTER","WASTE","WATCH","WATER","WHEEL","WHERE","WHICH","WHILE","WHITE","WHOLE","WHOSE","WIDER","WIELD","WOMAN","WOMEN","WOODS","WORLD","WORRY","WORSE","WORST","WORTH","WOULD","WOUND","WRIST","WRITE","WRONG","WROTE","YIELD","YOUNG","YOURS","YOUTH","ZONES"];
+    var targetWord = words[Math.floor(Math.random() * words.length)];
+    var currentRow = 0;
+    var currentCol = 0;
+    var maxGuesses = 6;
+    var gameOver = false;
+
+    var messageDiv = document.createElement("div");
+    messageDiv.style.cssText = "text-align:center;margin-bottom:12px;font-size:16px;color:#FFD700;min-height:22px;font-weight:bold;";
+    contentWrapper.appendChild(messageDiv);
+
+    var boardDiv = document.createElement("div");
+    boardDiv.style.cssText = "display:grid;grid-template-rows:repeat(6, 1fr);gap:6px;margin:0 auto 16px;max-width:380px;";
+    
+    var board = [];
+    for(var i = 0; i < maxGuesses; i++) {
+      var rowDiv = document.createElement("div");
+      rowDiv.style.cssText = "display:grid;grid-template-columns:repeat(5, 1fr);gap:6px;";
+      var row = [];
+      for(var j = 0; j < 5; j++) {
+        var cell = document.createElement("div");
+        cell.style.cssText = "width:65px;height:65px;border:3px solid #3a3a3c;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:bold;color:white;background:#121213;border-radius:4px;";
+        cell.dataset.row = i;
+        cell.dataset.col = j;
+        rowDiv.appendChild(cell);
+        row.push(cell);
+      }
+      boardDiv.appendChild(rowDiv);
+      board.push(row);
+    }
+    contentWrapper.appendChild(boardDiv);
+
+    var keyboardDiv = document.createElement("div");
+    keyboardDiv.style.cssText = "display:flex;flex-direction:column;gap:6px;max-width:550px;margin:0 auto;";
+    
+    var keys = [
+      ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+      ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+      ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
+    ];
+
+    keys.forEach(function(keyRow) {
+      var rowDiv = document.createElement("div");
+      rowDiv.style.cssText = "display:flex;gap:5px;justify-content:center;";
+      keyRow.forEach(function(key) {
+        var keyBtn = document.createElement("button");
+        keyBtn.innerText = key;
+        keyBtn.style.cssText = "padding:16px;border:none;border-radius:6px;background:#818384;color:white;font-weight:bold;cursor:pointer;font-size:16px;";
+        if(key === "ENTER" || key === "⌫") {
+          keyBtn.style.padding = "16px 24px";
+          keyBtn.style.fontSize = "14px";
+        } else {
+          keyBtn.style.minWidth = "42px";
+        }
+        keyBtn.onmouseover = function() { if(!gameOver) this.style.filter = "brightness(1.2)"; };
+        keyBtn.onmouseout = function() { this.style.filter = ""; };
+        keyBtn.onclick = function() {
+          handleKey(key);
+        };
+        keyBtn.dataset.key = key;
+        rowDiv.appendChild(keyBtn);
+      });
+      keyboardDiv.appendChild(rowDiv);
+    });
+    contentWrapper.appendChild(keyboardDiv);
+
+    function handleKey(key) {
+      if(gameOver) return;
+      
+      if(key === "ENTER") {
+        if(currentCol === 5) {
+          checkGuess();
+        } else {
+          messageDiv.innerText = "Not enough letters!";
+          setTimeout(function() { messageDiv.innerText = ""; }, 1000);
+        }
+      } else if(key === "⌫") {
+        if(currentCol > 0) {
+          currentCol--;
+          board[currentRow][currentCol].innerText = "";
+        }
+      } else {
+        if(currentCol < 5) {
+          board[currentRow][currentCol].innerText = key;
+          currentCol++;
+        }
+      }
+    }
+
+    function checkGuess() {
+      var guess = "";
+      for(var i = 0; i < 5; i++) {
+        guess += board[currentRow][i].innerText;
+      }
+      
+      var targetLetters = targetWord.split("");
+      var guessLetters = guess.split("");
+      var colors = ["#3a3a3c", "#3a3a3c", "#3a3a3c", "#3a3a3c", "#3a3a3c"];
+      var used = [false, false, false, false, false];
+      
+      for(var i = 0; i < 5; i++) {
+        if(guessLetters[i] === targetLetters[i]) {
+          colors[i] = "#6aaa64";
+          used[i] = true;
+        }
+      }
+      
+      for(var i = 0; i < 5; i++) {
+        if(colors[i] === "#6aaa64") continue;
+        for(var j = 0; j < 5; j++) {
+          if(!used[j] && guessLetters[i] === targetLetters[j]) {
+            colors[i] = "#c9b458";
+            used[j] = true;
+            break;
+          }
+        }
+      }
+      
+      for(var i = 0; i < 5; i++) {
+        board[currentRow][i].style.background = colors[i];
+        board[currentRow][i].style.borderColor = colors[i];
+        
+        var keyBtn = keyboardDiv.querySelector('[data-key="' + guessLetters[i] + '"]');
+        if(keyBtn) {
+          var currentBg = keyBtn.style.background;
+          if(colors[i] === "#6aaa64") {
+            keyBtn.style.background = "#6aaa64";
+          } else if(colors[i] === "#c9b458" && currentBg !== "rgb(106, 170, 100)") {
+            keyBtn.style.background = "#c9b458";
+          } else if(colors[i] === "#3a3a3c" && currentBg !== "rgb(106, 170, 100)" && currentBg !== "rgb(201, 180, 88)") {
+            keyBtn.style.background = "#3a3a3c";
+          }
+        }
+      }
+      
+      if(guess === targetWord) {
+        messageDiv.innerText = "🎉 You won!";
+        messageDiv.style.color = "#6aaa64";
+        gameOver = true;
+        return;
+      }
+      
+      currentRow++;
+      currentCol = 0;
+      
+      if(currentRow === maxGuesses) {
+        messageDiv.innerText = "Game Over! Word was: " + targetWord;
+        messageDiv.style.color = "#ff6b6b";
+        gameOver = true;
+      }
+    }
+
+    document.addEventListener("keydown", function wordleKeyHandler(e) {
+      if(gameOver) return;
+      var key = e.key.toUpperCase();
+      if(key === "ENTER") {
+        handleKey("ENTER");
+      } else if(key === "BACKSPACE") {
+        handleKey("⌫");
+      } else if(/^[A-Z]$/.test(key)) {
+        handleKey(key);
+      }
+    });
+  }
+
   function openChatPanel() {
     if(chatPanel) return;
     chatPanel = document.createElement("div");
@@ -727,7 +1263,66 @@
   }
 
   function ownerNotes() {
-    showPanelWithBack("Owner Notes", "Write notes here...");
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "📝 Owner Notes";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var notesData = {};
+    try {
+      var saved = localStorage.getItem("ownerNotes");
+      if(saved) notesData = JSON.parse(saved);
+    } catch(e) {}
+
+    var textarea = document.createElement("textarea");
+    textarea.placeholder = "Write your notes here...";
+    textarea.value = notesData.notes || "";
+    textarea.style.cssText = "width:100%;height:250px;padding:8px;border-radius:6px;border:1px solid #3a3a3c;background:#14141f;color:white;font-family:sans-serif;font-size:14px;resize:vertical;";
+    gui.appendChild(textarea);
+
+    var saveBtn = createButton("💾 Save Notes", function() {
+      try {
+        localStorage.setItem("ownerNotes", JSON.stringify({ notes: textarea.value }));
+        var msg = document.createElement("div");
+        msg.innerText = "✓ Notes saved!";
+        msg.style.cssText = "text-align:center;margin-top:8px;color:#4CAF50;font-size:13px;";
+        gui.appendChild(msg);
+        setTimeout(function() { msg.remove(); }, 2000);
+      } catch(e) {
+        alert("Error saving notes: " + e.message);
+      }
+    }, { wide: true, bg: "#4CAF50" });
+    saveBtn.style.marginTop = "8px";
+    gui.appendChild(saveBtn);
+
+    var clearBtn = createButton("🗑️ Clear Notes", function() {
+      if(confirm("Are you sure you want to clear all notes?")) {
+        textarea.value = "";
+        try {
+          localStorage.removeItem("ownerNotes");
+          var msg = document.createElement("div");
+          msg.innerText = "✓ Notes cleared!";
+          msg.style.cssText = "text-align:center;margin-top:8px;color:#ff6b6b;font-size:13px;";
+          gui.appendChild(msg);
+          setTimeout(function() { msg.remove(); }, 2000);
+        } catch(e) {
+          alert("Error clearing notes: " + e.message);
+        }
+      }
+    }, { wide: true, bg: "#ff6b6b" });
+    clearBtn.style.marginTop = "4px";
+    gui.appendChild(clearBtn);
   }
 
   function togglePanels() {
@@ -743,7 +1338,7 @@
     createButton("Dance Party", danceParty),
     createButton("Mirror Mode", mirrorMode),
     createButton("Chat", openChatPanel),
-    createButton("Settings", function() { alert("Settings panel coming soon!") })
+    createButton("Games", showGamesPanel)
   ];
 
   var modButtons = [

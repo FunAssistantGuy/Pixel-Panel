@@ -8,7 +8,7 @@
 
   var keyboardListener = null;
   var currentFocus = { type: "display" };
-  var chatPanel = null, passwordCorrect = false, userRole = "normal", currentPanel = "normal";
+  var chatPanel = null, modchatPanel + null, passwordCorrect = false, userRole = "normal", currentPanel = "normal";
 
   async function sha256Hex(str) {
     const buf = new TextEncoder().encode(str);
@@ -734,7 +734,7 @@
     createButton("Page Stats", pageStats),
     createButton("Quick Copy Elements", quickCopyElements),
     createButton("Toggle Images", toggleImages),
-    createButton("Theme Override", themeOverride)
+    createButton("Theme Override", themeOverride),
     createButton("Mod Chat", openModChatPanel),
   ];var ownerButtons = [
     createButton("Owner Notes", ownerNotes),

@@ -595,6 +595,7 @@
     grid.appendChild(createButton("🐦 Flappy Bird", showFlappyBirdGame, { wide: true, bg: "#2196F3" }));
     grid.appendChild(createButton("🎨 Drawing Pad", showDrawingPad, { wide: true, bg: "#FF9800" }));
     grid.appendChild(createButton("📝 Wordle", showWordleGame, { wide: true, bg: "#6AAA64" }));
+    grid.appendChild(createButton("🔢 2048", show2048Game, { wide: true, bg: "#EDC22E" }));
     
     gui.appendChild(grid);
   }
@@ -1103,6 +1104,209 @@
         handleKey(key);
       }
     });
+  }
+
+  function show2048Game() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🔢 2048";
+    var backBtn = createButton("←", function() {
+      showGamesPanel();
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var scoreDiv = document.createElement("div");
+    scoreDiv.style.cssText = "text-align:center;margin-bottom:8px;font-size:18px;color:#EDC22E;font-weight:bold;";
+    scoreDiv.innerText = "Score: 0";
+    gui.appendChild(scoreDiv);
+
+    var gridContainer = document.createElement("div");
+    gridContainer.style.cssText = "width:320px;height:320px;background:#bbada0;border-radius:8px;padding:10px;margin:0 auto 12px;position:relative;";
+    gui.appendChild(gridContainer);
+
+    var grid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+    var score = 0;
+    var tileSize = 70;
+    var tileGap = 10;
+
+    var colors = {
+      0: "#cdc1b4", 2: "#eee4da", 4: "#ede0c8", 8: "#f2b179",
+      16: "#f59563", 32: "#f67c5f", 64: "#f65e3b", 128: "#edcf72",
+      256: "#edcc61", 512: "#edc850", 1024: "#edc53f", 2048: "#edc22e"
+    };
+
+    function createTile(value, row, col) {
+      var tile = document.createElement("div");
+      tile.style.cssText = "position:absolute;width:" + tileSize + "px;height:" + tileSize + "px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:bold;transition:all 0.15s;";
+      tile.style.background = colors[value] || "#3c3a32";
+      tile.style.color = value <= 4 ? "#776e65" : "#f9f6f2";
+      tile.innerText = value || "";
+      tile.style.left = (col * (tileSize + tileGap) + tileGap) + "px";
+      tile.style.top = (row * (tileSize + tileGap) + tileGap) + "px";
+      return tile;
+    }
+
+    function renderGrid() {
+      gridContainer.innerHTML = "";
+      for(var i = 0; i < 4; i++) {
+        for(var j = 0; j < 4; j++) {
+          if(grid[i][j] !== 0) {
+            gridContainer.appendChild(createTile(grid[i][j], i, j));
+          } else {
+            gridContainer.appendChild(createTile(0, i, j));
+          }
+        }
+      }
+      scoreDiv.innerText = "Score: " + score;
+    }
+
+    function addRandomTile() {
+      var empty = [];
+      for(var i = 0; i < 4; i++) {
+        for(var j = 0; j < 4; j++) {
+          if(grid[i][j] === 0) empty.push({r: i, c: j});
+        }
+      }
+      if(empty.length > 0) {
+        var pos = empty[Math.floor(Math.random() * empty.length)];
+        grid[pos.r][pos.c] = Math.random() < 0.9 ? 2 : 4;
+      }
+    }
+
+    function move(direction) {
+      var moved = false;
+      var newGrid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+      
+      if(direction === "left") {
+        for(var i = 0; i < 4; i++) {
+          var row = grid[i].filter(x => x !== 0);
+          for(var j = 0; j < row.length; j++) {
+            if(j < row.length - 1 && row[j] === row[j + 1]) {
+              row[j] *= 2;
+              score += row[j];
+              row.splice(j + 1, 1);
+            }
+          }
+          for(var j = 0; j < row.length; j++) {
+            newGrid[i][j] = row[j];
+          }
+          if(JSON.stringify(grid[i]) !== JSON.stringify(newGrid[i])) moved = true;
+        }
+      } else if(direction === "right") {
+        for(var i = 0; i < 4; i++) {
+          var row = grid[i].filter(x => x !== 0);
+          for(var j = row.length - 1; j > 0; j--) {
+            if(row[j] === row[j - 1]) {
+              row[j] *= 2;
+              score += row[j];
+              row.splice(j - 1, 1);
+              j--;
+            }
+          }
+          for(var j = 0; j < row.length; j++) {
+            newGrid[i][3 - j] = row[row.length - 1 - j];
+          }
+          if(JSON.stringify(grid[i]) !== JSON.stringify(newGrid[i])) moved = true;
+        }
+      } else if(direction === "up") {
+        for(var j = 0; j < 4; j++) {
+          var col = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]].filter(x => x !== 0);
+          for(var i = 0; i < col.length; i++) {
+            if(i < col.length - 1 && col[i] === col[i + 1]) {
+              col[i] *= 2;
+              score += col[i];
+              col.splice(i + 1, 1);
+            }
+          }
+          for(var i = 0; i < col.length; i++) {
+            newGrid[i][j] = col[i];
+          }
+          var oldCol = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
+          var newCol = [newGrid[0][j], newGrid[1][j], newGrid[2][j], newGrid[3][j]];
+          if(JSON.stringify(oldCol) !== JSON.stringify(newCol)) moved = true;
+        }
+      } else if(direction === "down") {
+        for(var j = 0; j < 4; j++) {
+          var col = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]].filter(x => x !== 0);
+          for(var i = col.length - 1; i > 0; i--) {
+            if(col[i] === col[i - 1]) {
+              col[i] *= 2;
+              score += col[i];
+              col.splice(i - 1, 1);
+              i--;
+            }
+          }
+          for(var i = 0; i < col.length; i++) {
+            newGrid[3 - i][j] = col[col.length - 1 - i];
+          }
+          var oldCol = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
+          var newCol = [newGrid[0][j], newGrid[1][j], newGrid[2][j], newGrid[3][j]];
+          if(JSON.stringify(oldCol) !== JSON.stringify(newCol)) moved = true;
+        }
+      }
+      
+      if(moved) {
+        grid = newGrid;
+        addRandomTile();
+        renderGrid();
+        checkGameOver();
+      }
+    }
+
+    function checkGameOver() {
+      for(var i = 0; i < 4; i++) {
+        for(var j = 0; j < 4; j++) {
+          if(grid[i][j] === 0) return;
+          if(j < 3 && grid[i][j] === grid[i][j + 1]) return;
+          if(i < 3 && grid[i][j] === grid[i + 1][j]) return;
+        }
+      }
+      alert("Game Over! Final Score: " + score);
+    }
+
+    document.addEventListener("keydown", function(e) {
+      if(e.key === "ArrowLeft") { e.preventDefault(); move("left"); }
+      else if(e.key === "ArrowRight") { e.preventDefault(); move("right"); }
+      else if(e.key === "ArrowUp") { e.preventDefault(); move("up"); }
+      else if(e.key === "ArrowDown") { e.preventDefault(); move("down"); }
+    });
+
+    var btnContainer = document.createElement("div");
+    btnContainer.style.cssText = "display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;max-width:320px;margin:0 auto;";
+    
+    var upBtn = createButton("↑", function() { move("up"); });
+    upBtn.style.gridColumn = "2";
+    btnContainer.appendChild(document.createElement("div"));
+    btnContainer.appendChild(upBtn);
+    btnContainer.appendChild(document.createElement("div"));
+    
+    btnContainer.appendChild(createButton("←", function() { move("left"); }));
+    btnContainer.appendChild(createButton("↓", function() { move("down"); }));
+    btnContainer.appendChild(createButton("→", function() { move("right"); }));
+    
+    gui.appendChild(btnContainer);
+
+    var resetBtn = createButton("New Game", function() {
+      grid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+      score = 0;
+      addRandomTile();
+      addRandomTile();
+      renderGrid();
+    }, { wide: true, bg: "#8f7a66" });
+    resetBtn.style.marginTop = "8px";
+    gui.appendChild(resetBtn);
+
+    addRandomTile();
+    addRandomTile();
+    renderGrid();
   }
 
   function openChatPanel() {

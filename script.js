@@ -16,12 +16,15 @@
     const buf = new TextEncoder().encode(str);
     const hashBuf = await crypto.subtle.digest('SHA-256', buf);
     const hashArray = Array.from(new Uint8Array(hashBuf));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const hexHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    console.log("Input:", str, "Hash:", hexHash);
+    return hexHash;
   }
 
   const OWNER_HASH = "95125a0d7c7370659219459f0f21a6745a2564cdb27e0c06a0bdd3f7cf564103";
   const MOD_HASH = "52a09997d29387622dee692f5b74988075a4a4dd2bd0f481661fc3d8c68dac62";
   const NORMAL_HASH = "36c8d8697265145d5dd65559fafcd4819fad3036551bb02a6b9b259c55545634";
+  const SCHOOL_HASH = "d9e6762dd1c8eaf6d61b3c6192fc408d4d6d5f1176d0c29169bc24e71c3f274ad27fcd5811b313d681f7e55ec02d73d499c95455b6b5bb503acf934c08d7e8e43";
 
   function createButton(t, f, o) {
     var b = document.createElement("button");
@@ -592,6 +595,7 @@
     grid.appendChild(createButton("🐦 Flappy Bird", showFlappyBirdGame, { wide: true, bg: "#2196F3" }));
     grid.appendChild(createButton("🎨 Drawing Pad", showDrawingPad, { wide: true, bg: "#FF9800" }));
     grid.appendChild(createButton("📝 Wordle", showWordleGame, { wide: true, bg: "#6AAA64" }));
+    grid.appendChild(createButton("🔢 2048", show2048Game, { wide: true, bg: "#EDC22E" }));
     
     gui.appendChild(grid);
   }
@@ -1102,6 +1106,209 @@
     });
   }
 
+  function show2048Game() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🔢 2048";
+    var backBtn = createButton("←", function() {
+      showGamesPanel();
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var scoreDiv = document.createElement("div");
+    scoreDiv.style.cssText = "text-align:center;margin-bottom:8px;font-size:18px;color:#EDC22E;font-weight:bold;";
+    scoreDiv.innerText = "Score: 0";
+    gui.appendChild(scoreDiv);
+
+    var gridContainer = document.createElement("div");
+    gridContainer.style.cssText = "width:320px;height:320px;background:#bbada0;border-radius:8px;padding:10px;margin:0 auto 12px;position:relative;";
+    gui.appendChild(gridContainer);
+
+    var grid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+    var score = 0;
+    var tileSize = 70;
+    var tileGap = 10;
+
+    var colors = {
+      0: "#cdc1b4", 2: "#eee4da", 4: "#ede0c8", 8: "#f2b179",
+      16: "#f59563", 32: "#f67c5f", 64: "#f65e3b", 128: "#edcf72",
+      256: "#edcc61", 512: "#edc850", 1024: "#edc53f", 2048: "#edc22e"
+    };
+
+    function createTile(value, row, col) {
+      var tile = document.createElement("div");
+      tile.style.cssText = "position:absolute;width:" + tileSize + "px;height:" + tileSize + "px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:bold;transition:all 0.15s;";
+      tile.style.background = colors[value] || "#3c3a32";
+      tile.style.color = value <= 4 ? "#776e65" : "#f9f6f2";
+      tile.innerText = value || "";
+      tile.style.left = (col * (tileSize + tileGap) + tileGap) + "px";
+      tile.style.top = (row * (tileSize + tileGap) + tileGap) + "px";
+      return tile;
+    }
+
+    function renderGrid() {
+      gridContainer.innerHTML = "";
+      for(var i = 0; i < 4; i++) {
+        for(var j = 0; j < 4; j++) {
+          if(grid[i][j] !== 0) {
+            gridContainer.appendChild(createTile(grid[i][j], i, j));
+          } else {
+            gridContainer.appendChild(createTile(0, i, j));
+          }
+        }
+      }
+      scoreDiv.innerText = "Score: " + score;
+    }
+
+    function addRandomTile() {
+      var empty = [];
+      for(var i = 0; i < 4; i++) {
+        for(var j = 0; j < 4; j++) {
+          if(grid[i][j] === 0) empty.push({r: i, c: j});
+        }
+      }
+      if(empty.length > 0) {
+        var pos = empty[Math.floor(Math.random() * empty.length)];
+        grid[pos.r][pos.c] = Math.random() < 0.9 ? 2 : 4;
+      }
+    }
+
+    function move(direction) {
+      var moved = false;
+      var newGrid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+      
+      if(direction === "left") {
+        for(var i = 0; i < 4; i++) {
+          var row = grid[i].filter(x => x !== 0);
+          for(var j = 0; j < row.length; j++) {
+            if(j < row.length - 1 && row[j] === row[j + 1]) {
+              row[j] *= 2;
+              score += row[j];
+              row.splice(j + 1, 1);
+            }
+          }
+          for(var j = 0; j < row.length; j++) {
+            newGrid[i][j] = row[j];
+          }
+          if(JSON.stringify(grid[i]) !== JSON.stringify(newGrid[i])) moved = true;
+        }
+      } else if(direction === "right") {
+        for(var i = 0; i < 4; i++) {
+          var row = grid[i].filter(x => x !== 0);
+          for(var j = row.length - 1; j > 0; j--) {
+            if(row[j] === row[j - 1]) {
+              row[j] *= 2;
+              score += row[j];
+              row.splice(j - 1, 1);
+              j--;
+            }
+          }
+          for(var j = 0; j < row.length; j++) {
+            newGrid[i][3 - j] = row[row.length - 1 - j];
+          }
+          if(JSON.stringify(grid[i]) !== JSON.stringify(newGrid[i])) moved = true;
+        }
+      } else if(direction === "up") {
+        for(var j = 0; j < 4; j++) {
+          var col = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]].filter(x => x !== 0);
+          for(var i = 0; i < col.length; i++) {
+            if(i < col.length - 1 && col[i] === col[i + 1]) {
+              col[i] *= 2;
+              score += col[i];
+              col.splice(i + 1, 1);
+            }
+          }
+          for(var i = 0; i < col.length; i++) {
+            newGrid[i][j] = col[i];
+          }
+          var oldCol = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
+          var newCol = [newGrid[0][j], newGrid[1][j], newGrid[2][j], newGrid[3][j]];
+          if(JSON.stringify(oldCol) !== JSON.stringify(newCol)) moved = true;
+        }
+      } else if(direction === "down") {
+        for(var j = 0; j < 4; j++) {
+          var col = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]].filter(x => x !== 0);
+          for(var i = col.length - 1; i > 0; i--) {
+            if(col[i] === col[i - 1]) {
+              col[i] *= 2;
+              score += col[i];
+              col.splice(i - 1, 1);
+              i--;
+            }
+          }
+          for(var i = 0; i < col.length; i++) {
+            newGrid[3 - i][j] = col[col.length - 1 - i];
+          }
+          var oldCol = [grid[0][j], grid[1][j], grid[2][j], grid[3][j]];
+          var newCol = [newGrid[0][j], newGrid[1][j], newGrid[2][j], newGrid[3][j]];
+          if(JSON.stringify(oldCol) !== JSON.stringify(newCol)) moved = true;
+        }
+      }
+      
+      if(moved) {
+        grid = newGrid;
+        addRandomTile();
+        renderGrid();
+        checkGameOver();
+      }
+    }
+
+    function checkGameOver() {
+      for(var i = 0; i < 4; i++) {
+        for(var j = 0; j < 4; j++) {
+          if(grid[i][j] === 0) return;
+          if(j < 3 && grid[i][j] === grid[i][j + 1]) return;
+          if(i < 3 && grid[i][j] === grid[i + 1][j]) return;
+        }
+      }
+      alert("Game Over! Final Score: " + score);
+    }
+
+    document.addEventListener("keydown", function(e) {
+      if(e.key === "ArrowLeft") { e.preventDefault(); move("left"); }
+      else if(e.key === "ArrowRight") { e.preventDefault(); move("right"); }
+      else if(e.key === "ArrowUp") { e.preventDefault(); move("up"); }
+      else if(e.key === "ArrowDown") { e.preventDefault(); move("down"); }
+    });
+
+    var btnContainer = document.createElement("div");
+    btnContainer.style.cssText = "display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;max-width:320px;margin:0 auto;";
+    
+    var upBtn = createButton("↑", function() { move("up"); });
+    upBtn.style.gridColumn = "2";
+    btnContainer.appendChild(document.createElement("div"));
+    btnContainer.appendChild(upBtn);
+    btnContainer.appendChild(document.createElement("div"));
+    
+    btnContainer.appendChild(createButton("←", function() { move("left"); }));
+    btnContainer.appendChild(createButton("↓", function() { move("down"); }));
+    btnContainer.appendChild(createButton("→", function() { move("right"); }));
+    
+    gui.appendChild(btnContainer);
+
+    var resetBtn = createButton("New Game", function() {
+      grid = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+      score = 0;
+      addRandomTile();
+      addRandomTile();
+      renderGrid();
+    }, { wide: true, bg: "#8f7a66" });
+    resetBtn.style.marginTop = "8px";
+    gui.appendChild(resetBtn);
+
+    addRandomTile();
+    addRandomTile();
+    renderGrid();
+  }
+
   function openChatPanel() {
     if(chatPanel) return;
     chatPanel = document.createElement("div");
@@ -1361,14 +1568,444 @@
     createButton("Clear User Data", function() { alert("Local and session storage cleared!"); })
   ];
 
+  var schoolButtons = [
+    createButton("📅 Calendar", showCalendarPanel),
+    createButton("🔔 Bell Schedule", showBellSchedule),
+    createButton("🎵 Focus Music", showFocusMusic),
+    createButton("📝 Study Notes", showStudyNotes),
+    createButton("⏰ Class Timer", showClassTimer),
+    createButton("📚 Resources", showResources)
+  ];
+
+  function showBellSchedule() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🔔 Bell Schedule";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var schedules = {
+      regular: [
+        { period: "Zero Period", time: "7:15 AM - 8:00 AM" },
+        { period: "First Bell", time: "8:13 AM" },
+        { period: "Homeroom", time: "8:18 AM - 8:23 AM" },
+        { period: "Period 1", time: "8:23 AM - 9:12 AM" },
+        { period: "Period 2", time: "9:17 AM - 10:06 AM" },
+        { period: "Period 3", time: "10:11 AM - 11:00 AM" },
+        { period: "Period 4", time: "11:05 AM - 11:54 AM" },
+        { period: "Lunch", time: "11:54 AM - 12:32 PM" },
+        { period: "SSR", time: "12:37 PM - 12:52 PM" },
+        { period: "Period 5", time: "12:52 PM - 1:41 PM" },
+        { period: "Period 6", time: "1:46 PM - 2:35 PM" }
+      ],
+      staff: [
+        { period: "Zero Period", time: "7:15 AM - 8:00 AM" },
+        { period: "First Bell", time: "8:13 AM" },
+        { period: "Homeroom", time: "8:18 AM - 8:22 AM" },
+        { period: "Period 1", time: "8:22 AM - 8:56 AM" },
+        { period: "Period 2", time: "9:01 AM - 9:35 AM" },
+        { period: "Period 3", time: "9:40 AM - 10:14 AM" },
+        { period: "Period 4", time: "10:19 AM - 10:53 AM" },
+        { period: "Nutrition", time: "10:53 AM - 11:12 AM" },
+        { period: "Period 5", time: "11:17 AM - 11:51 AM" },
+        { period: "Period 6", time: "11:56 AM - 12:30 PM" }
+      ],
+      minimum: [
+        { period: "First Bell", time: "8:13 AM" },
+        { period: "Homeroom & Period 1", time: "8:18 AM - 8:49 AM" },
+        { period: "Period 2", time: "8:54 AM - 9:20 AM" },
+        { period: "Period 3", time: "9:25 AM - 9:51 AM" },
+        { period: "Period 4", time: "9:56 AM - 10:22 AM" },
+        { period: "Nutrition", time: "10:22 AM - 10:47 AM" },
+        { period: "Period 5", time: "10:53 AM - 11:19 AM" },
+        { period: "Period 6", time: "11:24 AM - 11:50 AM" }
+      ]
+    };
+
+    var currentSchedule = "regular";
+
+    var tabContainer = document.createElement("div");
+    tabContainer.style.cssText = "display:flex;gap:4px;margin-bottom:10px;";
+
+    var regularTab = createButton("Regular", function() {
+      currentSchedule = "regular";
+      renderSchedule();
+      updateTabs();
+    });
+    regularTab.style.margin = "0";
+    regularTab.style.flex = "1";
+
+    var staffTab = createButton("Staff Day", function() {
+      currentSchedule = "staff";
+      renderSchedule();
+      updateTabs();
+    });
+    staffTab.style.margin = "0";
+    staffTab.style.flex = "1";
+
+    var minimumTab = createButton("Minimum", function() {
+      currentSchedule = "minimum";
+      renderSchedule();
+      updateTabs();
+    });
+    minimumTab.style.margin = "0";
+    minimumTab.style.flex = "1";
+
+    tabContainer.appendChild(regularTab);
+    tabContainer.appendChild(staffTab);
+    tabContainer.appendChild(minimumTab);
+    gui.appendChild(tabContainer);
+
+    var scheduleDiv = document.createElement("div");
+    scheduleDiv.id = "scheduleContent";
+    gui.appendChild(scheduleDiv);
+
+    function updateTabs() {
+      regularTab.style.background = currentSchedule === "regular" ? "#4CAF50" : "#2a2a40";
+      staffTab.style.background = currentSchedule === "staff" ? "#4CAF50" : "#2a2a40";
+      minimumTab.style.background = currentSchedule === "minimum" ? "#4CAF50" : "#2a2a40";
+    }
+
+    function renderSchedule() {
+      scheduleDiv.innerHTML = "";
+      scheduleDiv.style.cssText = "background:#14141f;border-radius:8px;padding:12px;max-height:300px;overflow-y:auto;";
+      
+      schedules[currentSchedule].forEach(function(item) {
+        var itemDiv = document.createElement("div");
+        itemDiv.style.cssText = "padding:10px;margin-bottom:6px;background:#2a2a40;border-radius:6px;display:flex;justify-content:space-between;align-items:center;";
+        
+        var periodSpan = document.createElement("span");
+        periodSpan.style.fontWeight = "bold";
+        periodSpan.innerText = item.period;
+        
+        var timeSpan = document.createElement("span");
+        timeSpan.style.color = "#b0b0b0";
+        timeSpan.style.fontSize = "13px";
+        timeSpan.innerText = item.time;
+        
+        itemDiv.appendChild(periodSpan);
+        itemDiv.appendChild(timeSpan);
+        scheduleDiv.appendChild(itemDiv);
+      });
+    }
+
+    renderSchedule();
+    updateTabs();
+  }
+
+  function showFocusMusic() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🎵 Focus Music";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var playlists = [
+      { name: "Peaceful Piano", url: "https://www.youtube.com/embed/lTRiuFIWV54" },
+      { name: "Lofi Study Music", url: "https://www.youtube.com/embed/n61ULEU7CO0" },
+      { name: "Chill Music", url: "https://www.youtube.com/embed/wAPCSnAhhC8" }
+    ];
+
+    var currentIndex = 0;
+    var iframe = document.createElement("iframe");
+    iframe.width = "100%";
+    iframe.height = "200";
+    iframe.frameBorder = "0";
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+    iframe.allowFullscreen = true;
+    iframe.style.borderRadius = "8px";
+    iframe.src = playlists[currentIndex].url;
+    gui.appendChild(iframe);
+
+    var nameDiv = document.createElement("div");
+    nameDiv.style.cssText = "text-align:center;margin-top:8px;font-weight:bold;";
+    nameDiv.innerText = playlists[currentIndex].name;
+    gui.appendChild(nameDiv);
+
+    var btnContainer = document.createElement("div");
+    btnContainer.style.cssText = "display:flex;gap:6px;margin-top:8px;";
+    
+    btnContainer.appendChild(createButton("Previous", function() {
+      currentIndex = (currentIndex - 1 + playlists.length) % playlists.length;
+      iframe.src = playlists[currentIndex].url;
+      nameDiv.innerText = playlists[currentIndex].name;
+    }, { wide: true }));
+    
+    btnContainer.appendChild(createButton("Next", function() {
+      currentIndex = (currentIndex + 1) % playlists.length;
+      iframe.src = playlists[currentIndex].url;
+      nameDiv.innerText = playlists[currentIndex].name;
+    }, { wide: true }));
+    
+    gui.appendChild(btnContainer);
+  }
+
+  function showStudyNotes() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "📝 Study Notes";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var notesData = {};
+    try {
+      var saved = localStorage.getItem("studyNotes");
+      if(saved) notesData = JSON.parse(saved);
+    } catch(e) {}
+
+    var textarea = document.createElement("textarea");
+    textarea.placeholder = "Write your study notes here...";
+    textarea.value = notesData.notes || "";
+    textarea.style.cssText = "width:100%;height:200px;padding:8px;border-radius:6px;border:1px solid #3a3a3c;background:#14141f;color:white;font-family:sans-serif;font-size:14px;resize:vertical;";
+    gui.appendChild(textarea);
+
+    var saveBtn = createButton("💾 Save Notes", function() {
+      try {
+        localStorage.setItem("studyNotes", JSON.stringify({ notes: textarea.value }));
+        var msg = document.createElement("div");
+        msg.innerText = "✓ Notes saved!";
+        msg.style.cssText = "text-align:center;margin-top:8px;color:#4CAF50;font-size:13px;";
+        gui.appendChild(msg);
+        setTimeout(function() { msg.remove(); }, 2000);
+      } catch(e) {
+        alert("Error saving notes");
+      }
+    }, { wide: true, bg: "#4CAF50" });
+    saveBtn.style.marginTop = "8px";
+    gui.appendChild(saveBtn);
+  }
+
+  function showClassTimer() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "⏰ Class Timer";
+    var backBtn = createButton("←", function() {
+      if(timerInterval) clearInterval(timerInterval);
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var currentPeriodDiv = document.createElement("div");
+    currentPeriodDiv.style.cssText = "text-align:center;font-size:18px;font-weight:bold;padding:12px;background:#2a2a40;border-radius:8px;margin-bottom:8px;color:#4CAF50;";
+    gui.appendChild(currentPeriodDiv);
+
+    var display = document.createElement("div");
+    display.style.cssText = "text-align:center;font-size:48px;font-weight:bold;padding:30px;background:#14141f;border-radius:8px;margin-bottom:12px;";
+    display.innerText = "--:--";
+    gui.appendChild(display);
+
+    var timerInterval = null;
+
+    var regularSchedule = [
+      { name: "Zero Period", start: "7:15", end: "8:00" },
+      { name: "Homeroom", start: "8:18", end: "8:23" },
+      { name: "Period 1", start: "8:23", end: "9:12" },
+      { name: "Period 2", start: "9:17", end: "10:06" },
+      { name: "Period 3", start: "10:11", end: "11:00" },
+      { name: "Period 4", start: "11:05", end: "11:54" },
+      { name: "Lunch", start: "11:54", end: "12:32" },
+      { name: "SSR", start: "12:37", end: "12:52" },
+      { name: "Period 5", start: "12:52", end: "13:41" },
+      { name: "Period 6", start: "13:46", end: "14:35" }
+    ];
+
+    var staffSchedule = [
+      { name: "Zero Period", start: "7:15", end: "8:00" },
+      { name: "Homeroom", start: "8:18", end: "8:22" },
+      { name: "Period 1", start: "8:22", end: "8:56" },
+      { name: "Period 2", start: "9:01", end: "9:35" },
+      { name: "Period 3", start: "9:40", end: "10:14" },
+      { name: "Period 4", start: "10:19", end: "10:53" },
+      { name: "Nutrition", start: "10:53", end: "11:12" },
+      { name: "Period 5", start: "11:17", end: "11:51" },
+      { name: "Period 6", start: "11:56", end: "12:30" }
+    ];
+
+    var minimumSchedule = [
+      { name: "Homeroom & Period 1", start: "8:18", end: "8:49" },
+      { name: "Period 2", start: "8:54", end: "9:20" },
+      { name: "Period 3", start: "9:25", end: "9:51" },
+      { name: "Period 4", start: "9:56", end: "10:22" },
+      { name: "Nutrition", start: "10:22", end: "10:47" },
+      { name: "Period 5", start: "10:53", end: "11:19" },
+      { name: "Period 6", start: "11:24", end: "11:50" }
+    ];
+
+    var currentSchedule = regularSchedule;
+    var scheduleType = "Regular";
+
+    function timeToMinutes(timeStr) {
+      var parts = timeStr.split(":");
+      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    }
+
+    function getCurrentPeriod() {
+      var now = new Date();
+      var currentMinutes = now.getHours() * 60 + now.getMinutes();
+      
+      for(var i = 0; i < currentSchedule.length; i++) {
+        var period = currentSchedule[i];
+        var startMin = timeToMinutes(period.start);
+        var endMin = timeToMinutes(period.end);
+        
+        if(currentMinutes >= startMin && currentMinutes < endMin) {
+          return { period: period, secondsLeft: (endMin - currentMinutes) * 60 - now.getSeconds() };
+        }
+      }
+      return null;
+    }
+
+    function updateTimer() {
+      var current = getCurrentPeriod();
+      
+      if(current) {
+        currentPeriodDiv.innerText = "📚 " + current.period.name + " (" + scheduleType + ")";
+        
+        var mins = Math.floor(current.secondsLeft / 60);
+        var secs = current.secondsLeft % 60;
+        display.innerText = mins + ":" + (secs < 10 ? "0" : "") + secs;
+        
+        if(current.secondsLeft <= 60) {
+          display.style.color = "#ff6b6b";
+        } else if(current.secondsLeft <= 300) {
+          display.style.color = "#FFD700";
+        } else {
+          display.style.color = "white";
+        }
+      } else {
+        currentPeriodDiv.innerText = "No class in session";
+        display.innerText = "--:--";
+        display.style.color = "#b0b0b0";
+      }
+    }
+
+    var btnContainer = document.createElement("div");
+    btnContainer.style.cssText = "display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;";
+
+    var regularBtn = createButton("Regular", function() {
+      currentSchedule = regularSchedule;
+      scheduleType = "Regular";
+      updateTimer();
+      regularBtn.style.background = "#4CAF50";
+      staffBtn.style.background = "#2a2a40";
+      minimumBtn.style.background = "#2a2a40";
+    }, { wide: true, bg: "#4CAF50" });
+
+    var staffBtn = createButton("Staff Day", function() {
+      currentSchedule = staffSchedule;
+      scheduleType = "Staff Day";
+      updateTimer();
+      regularBtn.style.background = "#2a2a40";
+      staffBtn.style.background = "#4CAF50";
+      minimumBtn.style.background = "#2a2a40";
+    }, { wide: true });
+
+    var minimumBtn = createButton("Minimum", function() {
+      currentSchedule = minimumSchedule;
+      scheduleType = "Minimum";
+      updateTimer();
+      regularBtn.style.background = "#2a2a40";
+      staffBtn.style.background = "#2a2a40";
+      minimumBtn.style.background = "#4CAF50";
+    }, { wide: true });
+
+    btnContainer.appendChild(regularBtn);
+    btnContainer.appendChild(staffBtn);
+    btnContainer.appendChild(minimumBtn);
+    gui.appendChild(btnContainer);
+
+    var infoDiv = document.createElement("div");
+    infoDiv.style.cssText = "text-align:center;font-size:12px;color:#b0b0b0;padding:8px;";
+    infoDiv.innerText = "Timer automatically updates every second";
+    gui.appendChild(infoDiv);
+
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+
+  function showResources() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "📚 Study Resources";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var resources = [
+      { name: "Khan Academy", url: "https://www.khanacademy.org", icon: "📖" },
+      { name: "Quizlet", url: "https://quizlet.com", icon: "🎯" },
+      { name: "Wolfram Alpha", url: "https://www.wolframalpha.com", icon: "🔬" },
+      { name: "Google Scholar", url: "https://scholar.google.com", icon: "🎓" }
+    ];
+
+    var container = document.createElement("div");
+    container.style.cssText = "display:grid;gap:8px;";
+
+    resources.forEach(function(resource) {
+      var btn = createButton(resource.icon + " " + resource.name, function() {
+        window.open(resource.url, "_blank");
+      }, { wide: true, bg: "#2196F3" });
+      container.appendChild(btn);
+    });
+
+    gui.appendChild(container);
+  }
+
   function buildGridForPanel(pt) {
     gui.innerHTML = "";
     var h = document.createElement("div");
     h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
     var ti = document.createElement("strong");
-    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : "🌟 Fun Assistant";
+    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : pt === "school" ? "🎓 School Zone" : "🌟 Fun Assistant";
     h.appendChild(ti);
-    if(userRole !== "normal") {
+    if(userRole !== "normal" && userRole !== "school") {
       var t = createButton("Switch Panel", function() { togglePanel(); });
       h.appendChild(t);
     }
@@ -1391,6 +2028,7 @@
     if(pt === "normal") normalButtons.forEach(b => g.appendChild(b));
     if(pt === "mod") modButtons.forEach(b => g.appendChild(b));
     if(pt === "owner") ownerButtons.forEach(b => g.appendChild(b));
+    if(pt === "school") schoolButtons.forEach(b => g.appendChild(b));
   }
 
   function togglePanel() {
@@ -1436,6 +2074,15 @@
     var s = createButton("Submit", function() {
       (async () => {
         var val = i.value || "";
+        
+        if(val === "schoolzone") {
+          passwordCorrect = true;
+          userRole = "school";
+          currentPanel = "school";
+          buildGridForPanel(currentPanel);
+          return;
+        }
+        
         var h = await sha256Hex(val);
         if(h === OWNER_HASH) { passwordCorrect = true; userRole = "owner"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
         else if(h === MOD_HASH) { passwordCorrect = true; userRole = "mod"; currentPanel = "normal"; buildGridForPanel(currentPanel); }

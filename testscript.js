@@ -1606,6 +1606,7 @@
     var title = document.createElement("strong");
     title.innerText = "⏰ Class Timer";
     var backBtn = createButton("←", function() {
+      if(timerInterval) clearInterval(timerInterval);
       buildGridForPanel(currentPanel);
     });
     backBtn.style.background = "none";
@@ -1616,62 +1617,142 @@
     header.appendChild(backBtn);
     gui.appendChild(header);
 
+    var currentPeriodDiv = document.createElement("div");
+    currentPeriodDiv.style.cssText = "text-align:center;font-size:18px;font-weight:bold;padding:12px;background:#2a2a40;border-radius:8px;margin-bottom:8px;color:#4CAF50;";
+    gui.appendChild(currentPeriodDiv);
+
     var display = document.createElement("div");
     display.style.cssText = "text-align:center;font-size:48px;font-weight:bold;padding:30px;background:#14141f;border-radius:8px;margin-bottom:12px;";
-    display.innerText = "45:00";
+    display.innerText = "--:--";
     gui.appendChild(display);
 
     var timerInterval = null;
-    var timeLeft = 45 * 60;
-    var isRunning = false;
+
+    var regularSchedule = [
+      { name: "Zero Period", start: "7:15", end: "8:00" },
+      { name: "Homeroom", start: "8:18", end: "8:23" },
+      { name: "Period 1", start: "8:23", end: "9:12" },
+      { name: "Period 2", start: "9:17", end: "10:06" },
+      { name: "Period 3", start: "10:11", end: "11:00" },
+      { name: "Period 4", start: "11:05", end: "11:54" },
+      { name: "Lunch", start: "11:54", end: "12:32" },
+      { name: "SSR", start: "12:37", end: "12:52" },
+      { name: "Period 5", start: "12:52", end: "13:41" },
+      { name: "Period 6", start: "13:46", end: "14:35" }
+    ];
+
+    var staffSchedule = [
+      { name: "Zero Period", start: "7:15", end: "8:00" },
+      { name: "Homeroom", start: "8:18", end: "8:22" },
+      { name: "Period 1", start: "8:22", end: "8:56" },
+      { name: "Period 2", start: "9:01", end: "9:35" },
+      { name: "Period 3", start: "9:40", end: "10:14" },
+      { name: "Period 4", start: "10:19", end: "10:53" },
+      { name: "Nutrition", start: "10:53", end: "11:12" },
+      { name: "Period 5", start: "11:17", end: "11:51" },
+      { name: "Period 6", start: "11:56", end: "12:30" }
+    ];
+
+    var minimumSchedule = [
+      { name: "Homeroom & Period 1", start: "8:18", end: "8:49" },
+      { name: "Period 2", start: "8:54", end: "9:20" },
+      { name: "Period 3", start: "9:25", end: "9:51" },
+      { name: "Period 4", start: "9:56", end: "10:22" },
+      { name: "Nutrition", start: "10:22", end: "10:47" },
+      { name: "Period 5", start: "10:53", end: "11:19" },
+      { name: "Period 6", start: "11:24", end: "11:50" }
+    ];
+
+    var currentSchedule = regularSchedule;
+    var scheduleType = "Regular";
+
+    function timeToMinutes(timeStr) {
+      var parts = timeStr.split(":");
+      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    }
+
+    function getCurrentPeriod() {
+      var now = new Date();
+      var currentMinutes = now.getHours() * 60 + now.getMinutes();
+      
+      for(var i = 0; i < currentSchedule.length; i++) {
+        var period = currentSchedule[i];
+        var startMin = timeToMinutes(period.start);
+        var endMin = timeToMinutes(period.end);
+        
+        if(currentMinutes >= startMin && currentMinutes < endMin) {
+          return { period: period, secondsLeft: (endMin - currentMinutes) * 60 - now.getSeconds() };
+        }
+      }
+      return null;
+    }
+
+    function updateTimer() {
+      var current = getCurrentPeriod();
+      
+      if(current) {
+        currentPeriodDiv.innerText = "📚 " + current.period.name + " (" + scheduleType + ")";
+        
+        var mins = Math.floor(current.secondsLeft / 60);
+        var secs = current.secondsLeft % 60;
+        display.innerText = mins + ":" + (secs < 10 ? "0" : "") + secs;
+        
+        if(current.secondsLeft <= 60) {
+          display.style.color = "#ff6b6b";
+        } else if(current.secondsLeft <= 300) {
+          display.style.color = "#FFD700";
+        } else {
+          display.style.color = "white";
+        }
+      } else {
+        currentPeriodDiv.innerText = "No class in session";
+        display.innerText = "--:--";
+        display.style.color = "#b0b0b0";
+      }
+    }
 
     var btnContainer = document.createElement("div");
-    btnContainer.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:6px;";
+    btnContainer.style.cssText = "display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;";
 
-    var startBtn = createButton("▶ Start", function() {
-      if(!isRunning) {
-        isRunning = true;
-        timerInterval = setInterval(function() {
-          timeLeft--;
-          if(timeLeft <= 0) {
-            clearInterval(timerInterval);
-            isRunning = false;
-            alert("Time's up!");
-            timeLeft = 45 * 60;
-          }
-          var mins = Math.floor(timeLeft / 60);
-          var secs = timeLeft % 60;
-          display.innerText = mins + ":" + (secs < 10 ? "0" : "") + secs;
-        }, 1000);
-      }
+    var regularBtn = createButton("Regular", function() {
+      currentSchedule = regularSchedule;
+      scheduleType = "Regular";
+      updateTimer();
+      regularBtn.style.background = "#4CAF50";
+      staffBtn.style.background = "#2a2a40";
+      minimumBtn.style.background = "#2a2a40";
     }, { wide: true, bg: "#4CAF50" });
 
-    var pauseBtn = createButton("⏸ Pause", function() {
-      if(isRunning) {
-        clearInterval(timerInterval);
-        isRunning = false;
-      }
-    }, { wide: true, bg: "#FF9800" });
-
-    var resetBtn = createButton("↻ Reset", function() {
-      clearInterval(timerInterval);
-      isRunning = false;
-      timeLeft = 45 * 60;
-      display.innerText = "45:00";
-    }, { wide: true, bg: "#f44336" });
-
-    var preset15 = createButton("15 min", function() {
-      clearInterval(timerInterval);
-      isRunning = false;
-      timeLeft = 15 * 60;
-      display.innerText = "15:00";
+    var staffBtn = createButton("Staff Day", function() {
+      currentSchedule = staffSchedule;
+      scheduleType = "Staff Day";
+      updateTimer();
+      regularBtn.style.background = "#2a2a40";
+      staffBtn.style.background = "#4CAF50";
+      minimumBtn.style.background = "#2a2a40";
     }, { wide: true });
 
-    btnContainer.appendChild(startBtn);
-    btnContainer.appendChild(pauseBtn);
-    btnContainer.appendChild(resetBtn);
-    btnContainer.appendChild(preset15);
+    var minimumBtn = createButton("Minimum", function() {
+      currentSchedule = minimumSchedule;
+      scheduleType = "Minimum";
+      updateTimer();
+      regularBtn.style.background = "#2a2a40";
+      staffBtn.style.background = "#2a2a40";
+      minimumBtn.style.background = "#4CAF50";
+    }, { wide: true });
+
+    btnContainer.appendChild(regularBtn);
+    btnContainer.appendChild(staffBtn);
+    btnContainer.appendChild(minimumBtn);
     gui.appendChild(btnContainer);
+
+    var infoDiv = document.createElement("div");
+    infoDiv.style.cssText = "text-align:center;font-size:12px;color:#b0b0b0;padding:8px;";
+    infoDiv.innerText = "Timer automatically updates every second";
+    gui.appendChild(infoDiv);
+
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
   }
 
   function showResources() {

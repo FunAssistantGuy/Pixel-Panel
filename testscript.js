@@ -1517,9 +1517,9 @@
     gui.appendChild(header);
 
     var playlists = [
-      { name: "Lofi Hip Hop", url: "https://www.youtube.com/embed/jfKfPfyJRdk" },
-      { name: "Study Beats", url: "https://www.youtube.com/embed/5qap5aO4i9A" },
-      { name: "Piano Relaxing", url: "https://www.youtube.com/embed/lTRiuFIWV54" }
+      { name: "Peaceful Piano", url: "https://www.youtube.com/embed/lTRiuFIWV54" },
+      { name: "Lofi Study Music", url: "https://www.youtube.com/embed/n61ULEU7CO0" },
+      { name: "Chill Music", url: "https://www.youtube.com/embed/wAPCSnAhhC8" }
     ];
 
     var currentIndex = 0;

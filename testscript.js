@@ -16,13 +16,15 @@
     const buf = new TextEncoder().encode(str);
     const hashBuf = await crypto.subtle.digest('SHA-256', buf);
     const hashArray = Array.from(new Uint8Array(hashBuf));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const hexHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    console.log("Input:", str, "Hash:", hexHash);
+    return hexHash;
   }
 
   const OWNER_HASH = "95125a0d7c7370659219459f0f21a6745a2564cdb27e0c06a0bdd3f7cf564103";
   const MOD_HASH = "52a09997d29387622dee692f5b74988075a4a4dd2bd0f481661fc3d8c68dac62";
   const NORMAL_HASH = "36c8d8697265145d5dd65559fafcd4819fad3036551bb02a6b9b259c55545634";
-  const SCHOOL_HASH = "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3";
+  const SCHOOL_HASH = "d9e6762dd1c8eaf6d61b3c6192fc408d4d6d5f1176d0c29169bc24e71c3f274ad27fcd5811b313d681f7e55ec02d73d499c95455b6b5bb503acf934c08d7e8e43";
 
   function createButton(t, f, o) {
     var b = document.createElement("button");

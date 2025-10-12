@@ -1870,11 +1870,19 @@
     var s = createButton("Submit", function() {
       (async () => {
         var val = i.value || "";
+        
+        if(val === "schoolzone") {
+          passwordCorrect = true;
+          userRole = "school";
+          currentPanel = "school";
+          buildGridForPanel(currentPanel);
+          return;
+        }
+        
         var h = await sha256Hex(val);
         if(h === OWNER_HASH) { passwordCorrect = true; userRole = "owner"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
         else if(h === MOD_HASH) { passwordCorrect = true; userRole = "mod"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
         else if(h === NORMAL_HASH) { passwordCorrect = true; userRole = "normal"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
-        else if(h === SCHOOL_HASH) { passwordCorrect = true; userRole = "school"; currentPanel = "school"; buildGridForPanel(currentPanel); }
         else { gui.innerHTML = "<h3 style='color:red'>You do not have access to this!</h3>"; passwordCorrect = false; }
       })();
     }, { wide: true });

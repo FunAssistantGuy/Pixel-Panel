@@ -1,4 +1,4 @@
-// Fun Assistant - Complete Script with Games
+// Fun Assistant - Complete Script with All Features
 (function() {
   if(document.getElementById("funGuiBox")) document.getElementById("funGuiBox").remove();
   var gui = document.createElement("div");
@@ -17,14 +17,12 @@
     const hashBuf = await crypto.subtle.digest('SHA-256', buf);
     const hashArray = Array.from(new Uint8Array(hashBuf));
     const hexHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    console.log("Input:", str, "Hash:", hexHash);
     return hexHash;
   }
 
   const OWNER_HASH = "95125a0d7c7370659219459f0f21a6745a2564cdb27e0c06a0bdd3f7cf564103";
   const MOD_HASH = "52a09997d29387622dee692f5b74988075a4a4dd2bd0f481661fc3d8c68dac62";
   const NORMAL_HASH = "36c8d8697265145d5dd65559fafcd4819fad3036551bb02a6b9b259c55545634";
-  const SCHOOL_HASH = "d9e6762dd1c8eaf6d61b3c6192fc408d4d6d5f1176d0c29169bc24e71c3f274ad27fcd5811b313d681f7e55ec02d73d499c95455b6b5bb503acf934c08d7e8e43";
 
   function createButton(t, f, o) {
     var b = document.createElement("button");
@@ -787,21 +785,6 @@
       ctx.closePath();
       ctx.fill();
       
-      ctx.fillStyle = "#FF6B6B";
-      ctx.beginPath();
-      ctx.moveTo(-bird.width/2, bird.height/2 - 8);
-      ctx.lineTo(-bird.width/2 - 8, bird.height/2 + 2);
-      ctx.lineTo(-bird.width/2 - 8, bird.height/2 - 2);
-      ctx.closePath();
-      ctx.fill();
-      
-      ctx.beginPath();
-      ctx.moveTo(-bird.width/2 + 5, bird.height/2 - 8);
-      ctx.lineTo(-bird.width/2 - 3, bird.height/2 + 2);
-      ctx.lineTo(-bird.width/2 - 3, bird.height/2 - 2);
-      ctx.closePath();
-      ctx.fill();
-      
       ctx.fillStyle = "white";
       ctx.beginPath();
       ctx.arc(5, -3, 6, 0, Math.PI * 2);
@@ -811,18 +794,6 @@
       ctx.beginPath();
       ctx.arc(7, -3, 3, 0, Math.PI * 2);
       ctx.fill();
-      
-      ctx.fillStyle = "#FFA500";
-      ctx.strokeStyle = "#FF8C00";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, bird.height/2);
-      ctx.lineTo(-3, bird.height/2 + 4);
-      ctx.lineTo(0, bird.height/2 + 3);
-      ctx.lineTo(3, bird.height/2 + 4);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
       
       ctx.restore();
     }
@@ -1054,7 +1025,7 @@
     contentWrapper.style.cssText = "max-height:500px;overflow-y:auto;overflow-x:hidden;";
     gui.appendChild(contentWrapper);
 
-    var words = ["ABOUT","ABOVE","ABUSE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIEN","ALIGN","ALIKE","ALIVE","ALLOW","ALONE","ALONG","ALTER","ANGEL","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE","ARISE","ARMOR","ARMY","AROSE","ARRAY","ARROW","ASIDE","ASSET","ATOM","ATTIC","AUDIO","AVOID","AWAKE","AWARD","AWARE","BADLY","BAKER","BASES","BASIC","BASIN","BASIS","BEACH","BEGAN","BEGIN","BEING","BELOW","BENCH","BILLY","BIRTH","BLACK","BLADE","BLAME","BLANK","BLAST","BLEED","BLEND","BLESS","BLIND","BLINK","BLOCK","BLOOD","BLOOM","BLOWN","BOARD","BOOST","BOOTH","BOUND","BOWEL","BOXER","BRAIN","BRAKE","BRAND","BRASS","BRAVE","BREAD","BREAK","BREED","BRIEF","BRING","BROAD","BROKE","BROWN","BRUSH","BUILD","BUILT","BUNCH","BURST","BUYER","CABLE","CACHE","CALIF","CAMEL","CANAL","CANDY","CANON","CARRY","CARVE","CATCH","CAUSE","CHAIN","CHAIR","CHAOS","CHARM","CHART","CHASE","CHEAP","CHEAT","CHECK","CHEEK","CHEST","CHIEF","CHILD","CHINA","CHOSE","CIVIL","CLAIM","CLASS","CLEAN","CLEAR","CLICK","CLIFF","CLIMB","CLOCK","CLONE","CLOSE","CLOTH","CLOUD","COACH","COAST","CORAL","COUCH","COULD","COUNT","COURT","COVER","CRACK","CRAFT","CRASH","CRAZY","CREAM","CREEK","CRIME","CRISP","CROSS","CROWD","CROWN","CRUDE","CRUEL","CRUSH","CURVE","CYCLE","DAILY","DAIRY","DANCE","DATED","DEALT","DEATH","DEBUT","DECAY","DELAY","DELTA","DENSE","DEPTH","DOING","DOUBT","DOZEN","DRAFT","DRAIN","DRANK","DRAWN","DREAM","DRESS","DRILL","DRINK","DRIVE","DROVE","DROWN","DUTCH","DYING","EAGER","EARLY","EARTH","EIGHT","ELECT","ELITE","EMPTY","ENEMY","ENJOY","ENTER","ENTRY","EQUAL","ERROR","ERUPT","ESSAY","ETHER","ETHIC","EVENT","EVERY","EXACT","EXERT","EXIST","EXTRA","FAITH","FALSE","FAULT","FENCE","FIBER","FIELD","FIFTH","FIFTY","FIGHT","FINAL","FIRST","FIXED","FLASH","FLEET","FLESH","FLOOR","FLUID","FOCUS","FORCE","FORTH","FORTY","FORUM","FOUND","FRAME","FRANK","FRAUD","FRESH","FRONT","FROST","FRUIT","FULLY","FUNNY","GIANT","GIVEN","GLASS","GLOBE","GLORY","GRACE","GRADE","GRAIN","GRAND","GRANT","GRAPH","GRASS","GRAVE","GREAT","GREED","GREEK","GREEN","GREET","GROSS","GROUP","GROVE","GROWN","GUARD","GUESS","GUEST","GUIDE","GUILD","GUILT","HABIT","HAPPY","HARRY","HARSH","HATE","HAUNT","HEART","HEAVY","HEDGE","HELLO","HENRY","HORSE","HOTEL","HOUSE","HUMAN","HUMOR","IDEAL","IMAGE","IMPLY","INDEX","INNER","INPUT","IRONY","ISSUE","IVORY","JAPAN","JIMMY","JOINT","JONES","JUDGE","KNOWN","LABEL","LABOR","LARGE","LASER","LATER","LAUGH","LAYER","LEARN","LEASE","LEAST","LEAVE","LEGAL","LEMON","LEVEL","LEVER","LIGHT","LIMIT","LINEN","LIVED","LIVER","LOCAL","LOGIC","LOOSE","LOWER","LOYAL","LUCKY","LUNCH","LYING","MAGIC","MAJOR","MAKER","MARCH","MARRY","MATCH","MATRIX","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR","MINUS","MIXED","MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVED","MOVIE","MUSIC","NEEDS","NERVE","NEVER","NEWLY","NIGHT","NINTH","NOBLE","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR","OCEAN","OFFER","OFTEN","ORDER","OTHER","OUGHT","OUTER","OWNER","PAINT","PANEL","PANIC","PAPER","PARTY","PASTA","PATCH","PAUSE","PEACE","PEACH","PEARL","PHASE","PHONE","PHOTO","PIANO","PIECE","PILOT","PITCH","PLACE","PLAIN","PLANE","PLANT","PLATE","PLAZA","PLEAD","POINT","POKER","POLAR","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRISON","PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE","QUOTA","QUOTE","RADIO","RAISE","RANCH","RANGE","RANKS","RAPID","RATIO","REACH","REACT","REALM","REBEL","REFER","RELAX","RELAY","REMOTE","REPLY","RIDER","RIDGE","RIFLE","RIGHT","RIGID","RISKY","RIVAL","RIVER","ROBIN","ROCKY","ROMAN","ROUGH","ROUND","ROUTE","ROYAL","RUGBY","RURAL","SCALE","SCARE","SCARY","SCENE","SCOPE","SCORE","SCOUT","SCREW","SCRIPT","SEIZE","SENSE","SERVE","SETUP","SEVEN","SHADE","SHAFT","SHAKE","SHALL","SHAPE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHINE","SHINY","SHOCK","SHOOT","SHORT","SHOWN","SHRUG","SIDED","SIGHT","SILLY","SINCE","SIXTH","SIXTY","SIZED","SKILL","SLAVE","SLEEP","SLICE","SLIDE","SLOPE","SMALL","SMART","SMELL","SMILE","SMITH","SMOKE","SNAKE","SNEAK","SOLID","SOLVE","SOUND","SOUTH","SPACE","SPARE","SPARK","SPEAK","SPEED","SPEND","SPENT","SPLIT","SPOKE","SPORT","SPRAY","SQUAD","STACK","STAFF","STAGE","STAKE","STAND","START","STATE","STEAM","STEEL","STEEP","STICK","STILL","STOCK","STONE","STOOD","STORE","STORM","STORY","STRIP","STUCK","STUDY","STUFF","STYLE","SUGAR","SUITE","SUNNY","SUPER","SURGE","SWEET","SWIFT","SWING","SWISS","SWORD","TABLE","TAKEN","TASTE","TAXES","TEACH","TERNA","THANK","THEFT","THEIR","THEME","THERE","THESE","THICK","THING","THINK","THIRD","THOSE","THREE","THREW","THROW","THUMB","TIGHT","TIMER","TIRED","TITLE","TODAY","TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TOXIC","TRACE","TRACK","TRACT","TRADE","TRAIL","TRAIN","TRAIT","TRASH","TREAT","TREND","TRIAL","TRIBE","TRICK","TRIED","TROOP","TRULY","TRUNK","TRUST","TRUTH","TWICE","TWIST","UNCLE","UNDER","UNDUE","UNION","UNITY","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VAGUE","VALID","VALUE","VENUE","VERSE","VIDEO","VIRUS","VISIT","VITAL","VOCAL","VOICE","VOTER","WASTE","WATCH","WATER","WHEEL","WHERE","WHICH","WHILE","WHITE","WHOLE","WHOSE","WIDER","WIELD","WOMAN","WOMEN","WOODS","WORLD","WORRY","WORSE","WORST","WORTH","WOULD","WOUND","WRIST","WRITE","WRONG","WROTE","YIELD","YOUNG","YOURS","YOUTH","ZONES"];
+    var words = ["ABOUT","ABOVE","ABUSE","ACTOR","ACUTE","ADMIT","ADOPT","ADULT","AFTER","AGAIN","AGENT","AGREE","AHEAD","ALARM","ALBUM","ALERT","ALIEN","ALIGN","ALIKE","ALIVE","ALLOW","ALONE","ALONG","ALTER","ANGEL","ANGLE","ANGRY","APART","APPLE","APPLY","ARENA","ARGUE","ARISE","ARMOR","ARRAY","ARROW","ASIDE","ASSET","AUDIO","AVOID","AWAKE","AWARD","AWARE","BADLY","BAKER","BASES","BASIC","BASIN","BASIS","BEACH","BEGAN","BEGIN","BEING","BELOW","BENCH","BILLY","BIRTH","BLACK","BLADE","BLAME","BLANK","BLAST","BLEED","BLEND","BLESS","BLIND","BLINK","BLOCK","BLOOD","BLOOM","BLOWN","BOARD","BOOST","BOOTH","BOUND","BOWEL","BOXER","BRAIN","BRAKE","BRAND","BRASS","BRAVE","BREAD","BREAK","BREED","BRIEF","BRING","BROAD","BROKE","BROWN","BRUSH","BUILD","BUILT","BUNCH","BURST","BUYER","CABLE","CACHE","CALIF","CAMEL","CANAL","CANDY","CANON","CARRY","CARVE","CATCH","CAUSE","CHAIN","CHAIR","CHAOS","CHARM","CHART","CHASE","CHEAP","CHEAT","CHECK","CHEEK","CHEST","CHIEF","CHILD","CHINA","CHOSE","CIVIL","CLAIM","CLASS","CLEAN","CLEAR","CLICK","CLIFF","CLIMB","CLOCK","CLONE","CLOSE","CLOTH","CLOUD","COACH","COAST","CORAL","COUCH","COULD","COUNT","COURT","COVER","CRACK","CRAFT","CRASH","CRAZY","CREAM","CREEK","CRIME","CRISP","CROSS","CROWD","CROWN","CRUDE","CRUEL","CRUSH","CURVE","CYCLE","DAILY","DAIRY","DANCE","DATED","DEALT","DEATH","DEBUT","DECAY","DELAY","DELTA","DENSE","DEPTH","DOING","DOUBT","DOZEN","DRAFT","DRAIN","DRANK","DRAWN","DREAM","DRESS","DRILL","DRINK","DRIVE","DROVE","DROWN","DUTCH","DYING","EAGER","EARLY","EARTH","EIGHT","ELECT","ELITE","EMPTY","ENEMY","ENJOY","ENTER","ENTRY","EQUAL","ERROR","ERUPT","ESSAY","ETHER","ETHIC","EVENT","EVERY","EXACT","EXERT","EXIST","EXTRA","FAITH","FALSE","FAULT","FENCE","FIBER","FIELD","FIFTH","FIFTY","FIGHT","FINAL","FIRST","FIXED","FLASH","FLEET","FLESH","FLOOR","FLUID","FOCUS","FORCE","FORTH","FORTY","FORUM","FOUND","FRAME","FRANK","FRAUD","FRESH","FRONT","FROST","FRUIT","FULLY","FUNNY","GIANT","GIVEN","GLASS","GLOBE","GLORY","GRACE","GRADE","GRAIN","GRAND","GRANT","GRAPH","GRASS","GRAVE","GREAT","GREED","GREEK","GREEN","GREET","GROSS","GROUP","GROVE","GROWN","GUARD","GUESS","GUEST","GUIDE","GUILD","GUILT","HABIT","HAPPY","HARRY","HARSH","HAUNT","HEART","HEAVY","HEDGE","HELLO","HENRY","HORSE","HOTEL","HOUSE","HUMAN","HUMOR","IDEAL","IMAGE","IMPLY","INDEX","INNER","INPUT","IRONY","ISSUE","IVORY","JAPAN","JIMMY","JOINT","JONES","JUDGE","KNOWN","LABEL","LABOR","LARGE","LASER","LATER","LAUGH","LAYER","LEARN","LEASE","LEAST","LEAVE","LEGAL","LEMON","LEVEL","LEVER","LIGHT","LIMIT","LINEN","LIVED","LIVER","LOCAL","LOGIC","LOOSE","LOWER","LOYAL","LUCKY","LUNCH","LYING","MAGIC","MAJOR","MAKER","MARCH","MARRY","MATCH","MAYOR","MEANT","MEDIA","METAL","MIGHT","MINOR","MINUS","MIXED","MODEL","MONEY","MONTH","MORAL","MOTOR","MOUNT","MOUSE","MOUTH","MOVED","MOVIE","MUSIC","NEEDS","NERVE","NEVER","NEWLY","NIGHT","NINTH","NOBLE","NOISE","NORTH","NOTED","NOVEL","NURSE","OCCUR","OCEAN","OFFER","OFTEN","ORDER","OTHER","OUGHT","OUTER","OWNER","PAINT","PANEL","PANIC","PAPER","PARTY","PASTA","PATCH","PAUSE","PEACE","PEACH","PEARL","PHASE","PHONE","PHOTO","PIANO","PIECE","PILOT","PITCH","PLACE","PLAIN","PLANE","PLANT","PLATE","PLAZA","PLEAD","POINT","POKER","POLAR","POUND","POWER","PRESS","PRICE","PRIDE","PRIME","PRINT","PRIOR","PRIZE","PROOF","PROUD","PROVE","QUEEN","QUICK","QUIET","QUITE","QUOTA","QUOTE","RADIO","RAISE","RANCH","RANGE","RANKS","RAPID","RATIO","REACH","REACT","REALM","REBEL","REFER","RELAX","RELAY","REPLY","RIDER","RIDGE","RIFLE","RIGHT","RIGID","RISKY","RIVAL","RIVER","ROBIN","ROCKY","ROMAN","ROUGH","ROUND","ROUTE","ROYAL","RUGBY","RURAL","SCALE","SCARE","SCARY","SCENE","SCOPE","SCORE","SCOUT","SCREW","SEIZE","SENSE","SERVE","SETUP","SEVEN","SHADE","SHAFT","SHAKE","SHALL","SHAPE","SHARE","SHARP","SHEET","SHELF","SHELL","SHIFT","SHINE","SHINY","SHOCK","SHOOT","SHORT","SHOWN","SHRUG","SIDED","SIGHT","SILLY","SINCE","SIXTH","SIXTY","SIZED","SKILL","SLAVE","SLEEP","SLICE","SLIDE","SLOPE","SMALL","SMART","SMELL","SMILE","SMITH","SMOKE","SNAKE","SNEAK","SOLID","SOLVE","SOUND","SOUTH","SPACE","SPARE","SPARK","SPEAK","SPEED","SPEND","SPENT","SPLIT","SPOKE","SPORT","SPRAY","SQUAD","STACK","STAFF","STAGE","STAKE","STAND","START","STATE","STEAM","STEEL","STEEP","STICK","STILL","STOCK","STONE","STOOD","STORE","STORM","STORY","STRIP","STUCK","STUDY","STUFF","STYLE","SUGAR","SUITE","SUNNY","SUPER","SURGE","SWEET","SWIFT","SWING","SWISS","SWORD","TABLE","TAKEN","TASTE","TAXES","TEACH","THANK","THEFT","THEIR","THEME","THERE","THESE","THICK","THING","THINK","THIRD","THOSE","THREE","THREW","THROW","THUMB","TIGHT","TIMER","TIRED","TITLE","TODAY","TOPIC","TOTAL","TOUCH","TOUGH","TOWER","TOXIC","TRACE","TRACK","TRACT","TRADE","TRAIL","TRAIN","TRAIT","TRASH","TREAT","TREND","TRIAL","TRIBE","TRICK","TRIED","TROOP","TRULY","TRUNK","TRUST","TRUTH","TWICE","TWIST","UNCLE","UNDER","UNDUE","UNION","UNITY","UNTIL","UPPER","UPSET","URBAN","USAGE","USUAL","VAGUE","VALID","VALUE","VENUE","VERSE","VIDEO","VIRUS","VISIT","VITAL","VOCAL","VOICE","VOTER","WASTE","WATCH","WATER","WHEEL","WHERE","WHICH","WHILE","WHITE","WHOLE","WHOSE","WIDER","WIELD","WOMAN","WOMEN","WOODS","WORLD","WORRY","WORSE","WORST","WORTH","WOULD","WOUND","WRIST","WRITE","WRONG","WROTE","YIELD","YOUNG","YOURS","YOUTH"];
     var targetWord = words[Math.floor(Math.random() * words.length)];
     var currentRow = 0;
     var currentCol = 0;
@@ -1454,6 +1425,7 @@
       if(isDragging) {
         chatPanel.style.left = (e.clientX - offsetX) + "px";
         chatPanel.style.top = (e.clientY - offsetY) + "px";
+        chatPanel.style.right = "auto";
       }
     };
     
@@ -1471,15 +1443,6 @@
     
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-    
-    chatPanel._moveHandler = onMouseMove;
-    chatPanel._upHandler = onMouseUp;
-    
-    const obs = new ResizeObserver(() => {
-      if(chatPanel) chatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    });
-    obs.observe(gui);
-    chatPanel._observer = obs;
   }
 
   function openModChatPanel() {
@@ -1520,6 +1483,7 @@
       if(isDragging) {
         modchatPanel.style.left = (e.clientX - offsetX) + "px";
         modchatPanel.style.top = (e.clientY - offsetY) + "px";
+        modchatPanel.style.right = "auto";
       }
     };
     
@@ -1537,15 +1501,6 @@
     
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-    
-    modchatPanel._moveHandler = onMouseMove;
-    modchatPanel._upHandler = onMouseUp;
-    
-    const obs = new ResizeObserver(() => {
-      if(modchatPanel) modchatPanel.style.top = (gui.offsetTop + gui.offsetHeight + 10) + "px";
-    });
-    obs.observe(gui);
-    modchatPanel._observer = obs;
   }
 
   function muteAnimations() {
@@ -1580,6 +1535,167 @@
   function themeOverride() {
     document.body.style.background = document.body.style.background === "" ? "#111" : "";
     document.body.style.color = document.body.style.color === "" ? "#eee" : "";
+  }
+
+  function showAutoClicker() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "🖱️ Auto Clicker";
+    var backBtn = createButton("←", function() {
+      if(window.autoClickerActive) {
+        window.autoClickerActive = false;
+        document.body.style.cursor = "";
+        var styleEl = document.getElementById("autoClickerStyles");
+        if(styleEl) styleEl.remove();
+      }
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var instructionsDiv = document.createElement("div");
+    instructionsDiv.style.cssText = "background:#14141f;padding:12px;border-radius:8px;margin-bottom:12px;font-size:13px;";
+    instructionsDiv.innerHTML = "<strong>Instructions:</strong><br>1. Set delay in milliseconds<br>2. Press '.' to activate<br>3. Click elements to auto-click them<br>4. Press ',' to deactivate";
+    gui.appendChild(instructionsDiv);
+
+    var delayInput = document.createElement("input");
+    delayInput.type = "number";
+    delayInput.placeholder = "Delay (ms)";
+    delayInput.value = "100";
+    delayInput.min = "1";
+    delayInput.style.cssText = "width:100%;padding:8px;border-radius:6px;margin-bottom:8px;border:none;font-size:14px;";
+    gui.appendChild(delayInput);
+
+    var statusDiv = document.createElement("div");
+    statusDiv.style.cssText = "text-align:center;margin-bottom:8px;font-size:16px;padding:8px;background:#14141f;border-radius:8px;";
+    statusDiv.innerHTML = "Status: <span id='autoClickerStatus' style='color:#ff6b6b;'>Inactive</span>";
+    gui.appendChild(statusDiv);
+
+    var infoDiv = document.createElement("div");
+    infoDiv.style.cssText = "background:#2a2a40;padding:8px;border-radius:8px;font-size:12px;color:#b0b0b0;";
+    infoDiv.innerText = "Press . (period) to start, , (comma) to stop";
+    gui.appendChild(infoDiv);
+
+    if(!document.getElementById("autoClickerStyles")) {
+      var styleEl = document.createElement("style");
+      styleEl.id = "autoClickerStyles";
+      styleEl.textContent = ".auto-clicker-target { outline: 2px solid #4CAF50 !important; }";
+      document.head.appendChild(styleEl);
+    }
+
+    window.autoClickerActive = false;
+    var clickDelay = 100;
+
+    function autoClickElement(element) {
+      if(!element.classList.contains("auto-clicker-target") || !window.autoClickerActive) return;
+      element.click();
+      setTimeout(function() { autoClickElement(element); }, clickDelay);
+    }
+
+    function handleAutoClickerClick(e) {
+      if(!e.isTrusted || !window.autoClickerActive) return;
+      e.preventDefault();
+      
+      if(e.target.classList.contains("auto-clicker-target")) {
+        e.target.classList.remove("auto-clicker-target");
+      } else {
+        e.target.classList.add("auto-clicker-target");
+        autoClickElement(e.target);
+      }
+    }
+
+    document.addEventListener("keydown", function autoClickerKeyHandler(e) {
+      if(e.key === ".") {
+        if(!window.autoClickerActive) {
+          window.autoClickerActive = true;
+          clickDelay = parseInt(delayInput.value) || 100;
+          document.body.style.cursor = "crosshair";
+          document.getElementById("autoClickerStatus").style.color = "#4CAF50";
+          document.getElementById("autoClickerStatus").innerText = "Active";
+          document.body.addEventListener("click", handleAutoClickerClick, true);
+        }
+      } else if(e.key === ",") {
+        if(window.autoClickerActive) {
+          window.autoClickerActive = false;
+          document.body.style.cursor = "";
+          document.getElementById("autoClickerStatus").style.color = "#ff6b6b";
+          document.getElementById("autoClickerStatus").innerText = "Inactive";
+          document.body.removeEventListener("click", handleAutoClickerClick, true);
+          document.querySelectorAll(".auto-clicker-target").forEach(el => el.classList.remove("auto-clicker-target"));
+        }
+      }
+    });
+  }
+
+  function showHistoryFlooder() {
+    gui.innerHTML = "";
+    var header = document.createElement("div");
+    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
+    var title = document.createElement("strong");
+    title.innerText = "📜 History Flooder";
+    var backBtn = createButton("←", function() {
+      buildGridForPanel(currentPanel);
+    });
+    backBtn.style.background = "none";
+    backBtn.style.border = "none";
+    backBtn.style.fontSize = "18px";
+    backBtn.style.margin = "0";
+    header.appendChild(title);
+    header.appendChild(backBtn);
+    gui.appendChild(header);
+
+    var instructionsDiv = document.createElement("div");
+    instructionsDiv.style.cssText = "background:#14141f;padding:12px;border-radius:8px;margin-bottom:12px;font-size:13px;";
+    instructionsDiv.innerHTML = "<strong>What is this?</strong><br>This will add the current page to your browser history multiple times, making it harder to find other pages in your history.";
+    gui.appendChild(instructionsDiv);
+
+    var warningDiv = document.createElement("div");
+    warningDiv.style.cssText = "background:#5a2a2a;padding:10px;border-radius:8px;margin-bottom:12px;font-size:12px;color:#ffcccc;border:1px solid #ff6b6b;";
+    warningDiv.innerHTML = "⚠️ <strong>Warning:</strong> Higher numbers may take longer to process.";
+    gui.appendChild(warningDiv);
+
+    var label = document.createElement("label");
+    label.innerText = "Number of times to add to history:";
+    label.style.cssText = "display:block;margin-bottom:6px;font-size:14px;";
+    gui.appendChild(label);
+
+    var input = document.createElement("input");
+    input.type = "number";
+    input.placeholder = "e.g., 100";
+    input.value = "50";
+    input.min = "1";
+    input.style.cssText = "width:100%;padding:8px;border-radius:6px;margin-bottom:12px;border:none;font-size:14px;";
+    gui.appendChild(input);
+
+    var submitBtn = createButton("Flood History", function() {
+      var num = parseInt(input.value);
+      if(isNaN(num) || num <= 0) {
+        alert("Please enter a valid positive number!");
+        return;
+      }
+
+      var currentUrl = window.location.href;
+      for(var i = 1; i <= num; i++) {
+        history.pushState(null, '', i === num ? currentUrl : '#' + i);
+      }
+
+      var resultDiv = document.createElement("div");
+      resultDiv.style.cssText = "background:#2a5a2a;padding:12px;border-radius:8px;margin-top:12px;text-align:center;color:#4CAF50;font-weight:bold;";
+      resultDiv.innerHTML = "✓ Success! Added " + num + " " + (num === 1 ? "entry" : "entries") + " to history.";
+      gui.appendChild(resultDiv);
+
+      setTimeout(function() {
+        resultDiv.remove();
+      }, 3000);
+    }, { wide: true, bg: "#4CAF50" });
+    gui.appendChild(submitBtn);
   }
 
   function ownerNotes() {
@@ -1670,6 +1786,8 @@
     createButton("Toggle Images", toggleImages),
     createButton("Theme Override", themeOverride),
     createButton("Mod Chat", openModChatPanel),
+    createButton("Auto Clicker", showAutoClicker),
+    createButton("History Flooder", showHistoryFlooder),
   ];
   
   var ownerButtons = [
@@ -1678,447 +1796,17 @@
     createButton("Inspect Elements", function() { document.querySelectorAll("*").forEach(e => e.style.outline = "2px solid red"); alert("Elements outlined"); }),
     createButton("Copy All Text", function() { navigator.clipboard.writeText(document.body.innerText); alert("All text copied"); }),
     createButton("Highlight Links", function() { document.querySelectorAll("a").forEach(e => e.style.outline = "2px solid cyan"); alert("All links highlighted"); }),
-    createButton("Clear User Data", function() { alert("Local and session storage cleared!"); })
+    createButton("Clear User Data", function() { localStorage.clear(); sessionStorage.clear(); alert("Local and session storage cleared!"); })
   ];
-
-  var schoolButtons = [
-    createButton("📅 Calendar", showCalendarPanel),
-    createButton("🔔 Bell Schedule", showBellSchedule),
-    createButton("🎵 Focus Music", showFocusMusic),
-    createButton("📝 Study Notes", showStudyNotes),
-    createButton("⏰ Class Timer", showClassTimer),
-    createButton("📚 Resources", showResources)
-  ];
-
-  function showBellSchedule() {
-    gui.innerHTML = "";
-    var header = document.createElement("div");
-    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
-    var title = document.createElement("strong");
-    title.innerText = "🔔 Bell Schedule";
-    var backBtn = createButton("←", function() {
-      buildGridForPanel(currentPanel);
-    });
-    backBtn.style.background = "none";
-    backBtn.style.border = "none";
-    backBtn.style.fontSize = "18px";
-    backBtn.style.margin = "0";
-    header.appendChild(title);
-    header.appendChild(backBtn);
-    gui.appendChild(header);
-
-    var schedules = {
-      regular: [
-        { period: "Zero Period", time: "7:15 AM - 8:00 AM" },
-        { period: "First Bell", time: "8:13 AM" },
-        { period: "Homeroom", time: "8:18 AM - 8:23 AM" },
-        { period: "Period 1", time: "8:23 AM - 9:12 AM" },
-        { period: "Period 2", time: "9:17 AM - 10:06 AM" },
-        { period: "Period 3", time: "10:11 AM - 11:00 AM" },
-        { period: "Period 4", time: "11:05 AM - 11:54 AM" },
-        { period: "Lunch", time: "11:54 AM - 12:32 PM" },
-        { period: "SSR", time: "12:37 PM - 12:52 PM" },
-        { period: "Period 5", time: "12:52 PM - 1:41 PM" },
-        { period: "Period 6", time: "1:46 PM - 2:35 PM" }
-      ],
-      staff: [
-        { period: "Zero Period", time: "7:15 AM - 8:00 AM" },
-        { period: "First Bell", time: "8:13 AM" },
-        { period: "Homeroom", time: "8:18 AM - 8:22 AM" },
-        { period: "Period 1", time: "8:22 AM - 8:56 AM" },
-        { period: "Period 2", time: "9:01 AM - 9:35 AM" },
-        { period: "Period 3", time: "9:40 AM - 10:14 AM" },
-        { period: "Period 4", time: "10:19 AM - 10:53 AM" },
-        { period: "Nutrition", time: "10:53 AM - 11:12 AM" },
-        { period: "Period 5", time: "11:17 AM - 11:51 AM" },
-        { period: "Period 6", time: "11:56 AM - 12:30 PM" }
-      ],
-      minimum: [
-        { period: "First Bell", time: "8:13 AM" },
-        { period: "Homeroom & Period 1", time: "8:18 AM - 8:49 AM" },
-        { period: "Period 2", time: "8:54 AM - 9:20 AM" },
-        { period: "Period 3", time: "9:25 AM - 9:51 AM" },
-        { period: "Period 4", time: "9:56 AM - 10:22 AM" },
-        { period: "Nutrition", time: "10:22 AM - 10:47 AM" },
-        { period: "Period 5", time: "10:53 AM - 11:19 AM" },
-        { period: "Period 6", time: "11:24 AM - 11:50 AM" }
-      ]
-    };
-
-    var currentSchedule = "regular";
-
-    var tabContainer = document.createElement("div");
-    tabContainer.style.cssText = "display:flex;gap:4px;margin-bottom:10px;";
-
-    var regularTab = createButton("Regular", function() {
-      currentSchedule = "regular";
-      renderSchedule();
-      updateTabs();
-    });
-    regularTab.style.margin = "0";
-    regularTab.style.flex = "1";
-
-    var staffTab = createButton("Staff Day", function() {
-      currentSchedule = "staff";
-      renderSchedule();
-      updateTabs();
-    });
-    staffTab.style.margin = "0";
-    staffTab.style.flex = "1";
-
-    var minimumTab = createButton("Minimum", function() {
-      currentSchedule = "minimum";
-      renderSchedule();
-      updateTabs();
-    });
-    minimumTab.style.margin = "0";
-    minimumTab.style.flex = "1";
-
-    tabContainer.appendChild(regularTab);
-    tabContainer.appendChild(staffTab);
-    tabContainer.appendChild(minimumTab);
-    gui.appendChild(tabContainer);
-
-    var scheduleDiv = document.createElement("div");
-    scheduleDiv.id = "scheduleContent";
-    gui.appendChild(scheduleDiv);
-
-    function updateTabs() {
-      regularTab.style.background = currentSchedule === "regular" ? "#4CAF50" : "#2a2a40";
-      staffTab.style.background = currentSchedule === "staff" ? "#4CAF50" : "#2a2a40";
-      minimumTab.style.background = currentSchedule === "minimum" ? "#4CAF50" : "#2a2a40";
-    }
-
-    function renderSchedule() {
-      scheduleDiv.innerHTML = "";
-      scheduleDiv.style.cssText = "background:#14141f;border-radius:8px;padding:12px;max-height:300px;overflow-y:auto;";
-      
-      schedules[currentSchedule].forEach(function(item) {
-        var itemDiv = document.createElement("div");
-        itemDiv.style.cssText = "padding:10px;margin-bottom:6px;background:#2a2a40;border-radius:6px;display:flex;justify-content:space-between;align-items:center;";
-        
-        var periodSpan = document.createElement("span");
-        periodSpan.style.fontWeight = "bold";
-        periodSpan.innerText = item.period;
-        
-        var timeSpan = document.createElement("span");
-        timeSpan.style.color = "#b0b0b0";
-        timeSpan.style.fontSize = "13px";
-        timeSpan.innerText = item.time;
-        
-        itemDiv.appendChild(periodSpan);
-        itemDiv.appendChild(timeSpan);
-        scheduleDiv.appendChild(itemDiv);
-      });
-    }
-
-    renderSchedule();
-    updateTabs();
-  }
-
-  function showFocusMusic() {
-    gui.innerHTML = "";
-    var header = document.createElement("div");
-    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
-    var title = document.createElement("strong");
-    title.innerText = "🎵 Focus Music";
-    var backBtn = createButton("←", function() {
-      buildGridForPanel(currentPanel);
-    });
-    backBtn.style.background = "none";
-    backBtn.style.border = "none";
-    backBtn.style.fontSize = "18px";
-    backBtn.style.margin = "0";
-    header.appendChild(title);
-    header.appendChild(backBtn);
-    gui.appendChild(header);
-
-    var playlists = [
-      { name: "Peaceful Piano", url: "https://www.youtube.com/embed/lTRiuFIWV54" },
-      { name: "Lofi Study Music", url: "https://www.youtube.com/embed/n61ULEU7CO0" },
-      { name: "Chill Music", url: "https://www.youtube.com/embed/wAPCSnAhhC8" }
-    ];
-
-    var currentIndex = 0;
-    var iframe = document.createElement("iframe");
-    iframe.width = "100%";
-    iframe.height = "200";
-    iframe.frameBorder = "0";
-    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-    iframe.allowFullscreen = true;
-    iframe.style.borderRadius = "8px";
-    iframe.src = playlists[currentIndex].url;
-    gui.appendChild(iframe);
-
-    var nameDiv = document.createElement("div");
-    nameDiv.style.cssText = "text-align:center;margin-top:8px;font-weight:bold;";
-    nameDiv.innerText = playlists[currentIndex].name;
-    gui.appendChild(nameDiv);
-
-    var btnContainer = document.createElement("div");
-    btnContainer.style.cssText = "display:flex;gap:6px;margin-top:8px;";
-    
-    btnContainer.appendChild(createButton("Previous", function() {
-      currentIndex = (currentIndex - 1 + playlists.length) % playlists.length;
-      iframe.src = playlists[currentIndex].url;
-      nameDiv.innerText = playlists[currentIndex].name;
-    }, { wide: true }));
-    
-    btnContainer.appendChild(createButton("Next", function() {
-      currentIndex = (currentIndex + 1) % playlists.length;
-      iframe.src = playlists[currentIndex].url;
-      nameDiv.innerText = playlists[currentIndex].name;
-    }, { wide: true }));
-    
-    gui.appendChild(btnContainer);
-  }
-
-  function showStudyNotes() {
-    gui.innerHTML = "";
-    var header = document.createElement("div");
-    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
-    var title = document.createElement("strong");
-    title.innerText = "📝 Study Notes";
-    var backBtn = createButton("←", function() {
-      buildGridForPanel(currentPanel);
-    });
-    backBtn.style.background = "none";
-    backBtn.style.border = "none";
-    backBtn.style.fontSize = "18px";
-    backBtn.style.margin = "0";
-    header.appendChild(title);
-    header.appendChild(backBtn);
-    gui.appendChild(header);
-
-    var notesData = {};
-    try {
-      var saved = localStorage.getItem("studyNotes");
-      if(saved) notesData = JSON.parse(saved);
-    } catch(e) {}
-
-    var textarea = document.createElement("textarea");
-    textarea.placeholder = "Write your study notes here...";
-    textarea.value = notesData.notes || "";
-    textarea.style.cssText = "width:100%;height:200px;padding:8px;border-radius:6px;border:1px solid #3a3a3c;background:#14141f;color:white;font-family:sans-serif;font-size:14px;resize:vertical;";
-    gui.appendChild(textarea);
-
-    var saveBtn = createButton("💾 Save Notes", function() {
-      try {
-        localStorage.setItem("studyNotes", JSON.stringify({ notes: textarea.value }));
-        var msg = document.createElement("div");
-        msg.innerText = "✓ Notes saved!";
-        msg.style.cssText = "text-align:center;margin-top:8px;color:#4CAF50;font-size:13px;";
-        gui.appendChild(msg);
-        setTimeout(function() { msg.remove(); }, 2000);
-      } catch(e) {
-        alert("Error saving notes");
-      }
-    }, { wide: true, bg: "#4CAF50" });
-    saveBtn.style.marginTop = "8px";
-    gui.appendChild(saveBtn);
-  }
-
-  function showClassTimer() {
-    gui.innerHTML = "";
-    var header = document.createElement("div");
-    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
-    var title = document.createElement("strong");
-    title.innerText = "⏰ Class Timer";
-    var backBtn = createButton("←", function() {
-      if(timerInterval) clearInterval(timerInterval);
-      buildGridForPanel(currentPanel);
-    });
-    backBtn.style.background = "none";
-    backBtn.style.border = "none";
-    backBtn.style.fontSize = "18px";
-    backBtn.style.margin = "0";
-    header.appendChild(title);
-    header.appendChild(backBtn);
-    gui.appendChild(header);
-
-    var currentPeriodDiv = document.createElement("div");
-    currentPeriodDiv.style.cssText = "text-align:center;font-size:18px;font-weight:bold;padding:12px;background:#2a2a40;border-radius:8px;margin-bottom:8px;color:#4CAF50;";
-    gui.appendChild(currentPeriodDiv);
-
-    var display = document.createElement("div");
-    display.style.cssText = "text-align:center;font-size:48px;font-weight:bold;padding:30px;background:#14141f;border-radius:8px;margin-bottom:12px;";
-    display.innerText = "--:--";
-    gui.appendChild(display);
-
-    var timerInterval = null;
-
-    var regularSchedule = [
-      { name: "Zero Period", start: "7:15", end: "8:00" },
-      { name: "Homeroom", start: "8:18", end: "8:23" },
-      { name: "Period 1", start: "8:23", end: "9:12" },
-      { name: "Period 2", start: "9:17", end: "10:06" },
-      { name: "Period 3", start: "10:11", end: "11:00" },
-      { name: "Period 4", start: "11:05", end: "11:54" },
-      { name: "Lunch", start: "11:54", end: "12:32" },
-      { name: "SSR", start: "12:37", end: "12:52" },
-      { name: "Period 5", start: "12:52", end: "13:41" },
-      { name: "Period 6", start: "13:46", end: "14:35" }
-    ];
-
-    var staffSchedule = [
-      { name: "Zero Period", start: "7:15", end: "8:00" },
-      { name: "Homeroom", start: "8:18", end: "8:22" },
-      { name: "Period 1", start: "8:22", end: "8:56" },
-      { name: "Period 2", start: "9:01", end: "9:35" },
-      { name: "Period 3", start: "9:40", end: "10:14" },
-      { name: "Period 4", start: "10:19", end: "10:53" },
-      { name: "Nutrition", start: "10:53", end: "11:12" },
-      { name: "Period 5", start: "11:17", end: "11:51" },
-      { name: "Period 6", start: "11:56", end: "12:30" }
-    ];
-
-    var minimumSchedule = [
-      { name: "Homeroom & Period 1", start: "8:18", end: "8:49" },
-      { name: "Period 2", start: "8:54", end: "9:20" },
-      { name: "Period 3", start: "9:25", end: "9:51" },
-      { name: "Period 4", start: "9:56", end: "10:22" },
-      { name: "Nutrition", start: "10:22", end: "10:47" },
-      { name: "Period 5", start: "10:53", end: "11:19" },
-      { name: "Period 6", start: "11:24", end: "11:50" }
-    ];
-
-    var currentSchedule = regularSchedule;
-    var scheduleType = "Regular";
-
-    function timeToMinutes(timeStr) {
-      var parts = timeStr.split(":");
-      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-    }
-
-    function getCurrentPeriod() {
-      var now = new Date();
-      var currentMinutes = now.getHours() * 60 + now.getMinutes();
-      
-      for(var i = 0; i < currentSchedule.length; i++) {
-        var period = currentSchedule[i];
-        var startMin = timeToMinutes(period.start);
-        var endMin = timeToMinutes(period.end);
-        
-        if(currentMinutes >= startMin && currentMinutes < endMin) {
-          return { period: period, secondsLeft: (endMin - currentMinutes) * 60 - now.getSeconds() };
-        }
-      }
-      return null;
-    }
-
-    function updateTimer() {
-      var current = getCurrentPeriod();
-      
-      if(current) {
-        currentPeriodDiv.innerText = "📚 " + current.period.name + " (" + scheduleType + ")";
-        
-        var mins = Math.floor(current.secondsLeft / 60);
-        var secs = current.secondsLeft % 60;
-        display.innerText = mins + ":" + (secs < 10 ? "0" : "") + secs;
-        
-        if(current.secondsLeft <= 60) {
-          display.style.color = "#ff6b6b";
-        } else if(current.secondsLeft <= 300) {
-          display.style.color = "#FFD700";
-        } else {
-          display.style.color = "white";
-        }
-      } else {
-        currentPeriodDiv.innerText = "No class in session";
-        display.innerText = "--:--";
-        display.style.color = "#b0b0b0";
-      }
-    }
-
-    var btnContainer = document.createElement("div");
-    btnContainer.style.cssText = "display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;";
-
-    var regularBtn = createButton("Regular", function() {
-      currentSchedule = regularSchedule;
-      scheduleType = "Regular";
-      updateTimer();
-      regularBtn.style.background = "#4CAF50";
-      staffBtn.style.background = "#2a2a40";
-      minimumBtn.style.background = "#2a2a40";
-    }, { wide: true, bg: "#4CAF50" });
-
-    var staffBtn = createButton("Staff Day", function() {
-      currentSchedule = staffSchedule;
-      scheduleType = "Staff Day";
-      updateTimer();
-      regularBtn.style.background = "#2a2a40";
-      staffBtn.style.background = "#4CAF50";
-      minimumBtn.style.background = "#2a2a40";
-    }, { wide: true });
-
-    var minimumBtn = createButton("Minimum", function() {
-      currentSchedule = minimumSchedule;
-      scheduleType = "Minimum";
-      updateTimer();
-      regularBtn.style.background = "#2a2a40";
-      staffBtn.style.background = "#2a2a40";
-      minimumBtn.style.background = "#4CAF50";
-    }, { wide: true });
-
-    btnContainer.appendChild(regularBtn);
-    btnContainer.appendChild(staffBtn);
-    btnContainer.appendChild(minimumBtn);
-    gui.appendChild(btnContainer);
-
-    var infoDiv = document.createElement("div");
-    infoDiv.style.cssText = "text-align:center;font-size:12px;color:#b0b0b0;padding:8px;";
-    infoDiv.innerText = "Timer automatically updates every second";
-    gui.appendChild(infoDiv);
-
-    updateTimer();
-    timerInterval = setInterval(updateTimer, 1000);
-  }
-
-  function showResources() {
-    gui.innerHTML = "";
-    var header = document.createElement("div");
-    header.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;";
-    var title = document.createElement("strong");
-    title.innerText = "📚 Study Resources";
-    var backBtn = createButton("←", function() {
-      buildGridForPanel(currentPanel);
-    });
-    backBtn.style.background = "none";
-    backBtn.style.border = "none";
-    backBtn.style.fontSize = "18px";
-    backBtn.style.margin = "0";
-    header.appendChild(title);
-    header.appendChild(backBtn);
-    gui.appendChild(header);
-
-    var resources = [
-      { name: "Khan Academy", url: "https://www.khanacademy.org", icon: "📖" },
-      { name: "Quizlet", url: "https://quizlet.com", icon: "🎯" },
-      { name: "Wolfram Alpha", url: "https://www.wolframalpha.com", icon: "🔬" },
-      { name: "Google Scholar", url: "https://scholar.google.com", icon: "🎓" }
-    ];
-
-    var container = document.createElement("div");
-    container.style.cssText = "display:grid;gap:8px;";
-
-    resources.forEach(function(resource) {
-      var btn = createButton(resource.icon + " " + resource.name, function() {
-        window.open(resource.url, "_blank");
-      }, { wide: true, bg: "#2196F3" });
-      container.appendChild(btn);
-    });
-
-    gui.appendChild(container);
-  }
 
   function buildGridForPanel(pt) {
     gui.innerHTML = "";
     var h = document.createElement("div");
     h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
     var ti = document.createElement("strong");
-    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : pt === "school" ? "🎓 School Zone" : "🌟 Fun Assistant";
+    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : "🌟 Fun Assistant";
     h.appendChild(ti);
-    if(userRole !== "normal" && userRole !== "school") {
+    if(userRole !== "normal") {
       var t = createButton("Switch Panel", function() { togglePanel(); });
       h.appendChild(t);
     }
@@ -2135,13 +1823,61 @@
     c.style.margin = "0";
     h.appendChild(c);
     gui.appendChild(h);
+
+    // Add Edit Page toggle for mod and owner panels
+    if(pt === "mod" || pt === "owner") {
+      var editSwitch = document.createElement("div");
+      editSwitch.style.cssText = "display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;padding:8px;background:#14141f;border-radius:8px;";
+      
+      var switchLabel = document.createElement("label");
+      switchLabel.className = "switch";
+      switchLabel.style.cssText = "position:relative;display:inline-block;width:50px;height:24px;";
+      
+      var checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = "editPageSwitch";
+      checkbox.style.cssText = "opacity:0;width:0;height:0;";
+      
+      var slider = document.createElement("span");
+      slider.className = "slider";
+      slider.style.cssText = "position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;transition:.4s;border-radius:24px;";
+      
+      var sliderButton = document.createElement("span");
+      sliderButton.style.cssText = "position:absolute;content:'';height:16px;width:16px;left:4px;bottom:4px;background-color:white;transition:.4s;border-radius:50%;";
+      slider.appendChild(sliderButton);
+      
+      checkbox.addEventListener("change", function() {
+        if(this.checked) {
+          document.body.contentEditable = 'true';
+          document.designMode = 'on';
+          slider.style.backgroundColor = "#4CAF50";
+          sliderButton.style.transform = "translateX(26px)";
+        } else {
+          document.body.contentEditable = 'false';
+          document.designMode = 'off';
+          slider.style.backgroundColor = "#ccc";
+          sliderButton.style.transform = "translateX(0)";
+        }
+      });
+      
+      switchLabel.appendChild(checkbox);
+      switchLabel.appendChild(slider);
+      
+      var labelText = document.createElement("span");
+      labelText.innerText = "Edit Page Mode";
+      labelText.style.cssText = "font-weight:bold;font-size:14px;";
+      
+      editSwitch.appendChild(switchLabel);
+      editSwitch.appendChild(labelText);
+      gui.appendChild(editSwitch);
+    }
+
     var g = document.createElement("div");
     g.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:6px";
     gui.appendChild(g);
     if(pt === "normal") normalButtons.forEach(b => g.appendChild(b));
     if(pt === "mod") modButtons.forEach(b => g.appendChild(b));
     if(pt === "owner") ownerButtons.forEach(b => g.appendChild(b));
-    if(pt === "school") schoolButtons.forEach(b => g.appendChild(b));
   }
 
   function togglePanel() {
@@ -2153,25 +1889,6 @@
       else currentPanel = "normal";
     }
     buildGridForPanel(currentPanel);
-  }
-
-  function showPanelWithBack(title, text) {
-    gui.innerHTML = "";
-    var h = document.createElement("div");
-    h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
-    var ti = document.createElement("strong");
-    ti.textContent = title;
-    h.appendChild(ti);
-    var back = createButton("←", function() { buildGridForPanel(currentPanel); });
-    back.style.background = "none";
-    back.style.border = "none";
-    back.style.fontSize = "18px";
-    back.style.margin = "0";
-    h.appendChild(back);
-    gui.appendChild(h);
-    var p = document.createElement("div");
-    p.textContent = text;
-    gui.appendChild(p);
   }
 
   function showPasswordScreen() {
@@ -2187,20 +1904,29 @@
     var s = createButton("Submit", function() {
       (async () => {
         var val = i.value || "";
-        
-        if(val === "schoolzone") {
-          passwordCorrect = true;
-          userRole = "school";
-          currentPanel = "school";
-          buildGridForPanel(currentPanel);
-          return;
-        }
-        
         var h = await sha256Hex(val);
-        if(h === OWNER_HASH) { passwordCorrect = true; userRole = "owner"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
-        else if(h === MOD_HASH) { passwordCorrect = true; userRole = "mod"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
-        else if(h === NORMAL_HASH) { passwordCorrect = true; userRole = "normal"; currentPanel = "normal"; buildGridForPanel(currentPanel); }
-        else { gui.innerHTML = "<h3 style='color:red'>You do not have access to this!</h3>"; passwordCorrect = false; }
+        if(h === OWNER_HASH) { 
+          passwordCorrect = true; 
+          userRole = "owner"; 
+          currentPanel = "normal"; 
+          buildGridForPanel(currentPanel); 
+        }
+        else if(h === MOD_HASH) { 
+          passwordCorrect = true; 
+          userRole = "mod"; 
+          currentPanel = "normal"; 
+          buildGridForPanel(currentPanel); 
+        }
+        else if(h === NORMAL_HASH) { 
+          passwordCorrect = true; 
+          userRole = "normal"; 
+          currentPanel = "normal"; 
+          buildGridForPanel(currentPanel); 
+        }
+        else { 
+          gui.innerHTML = "<h3 style='color:red'>You do not have access to this!</h3>"; 
+          passwordCorrect = false; 
+        }
       })();
     }, { wide: true });
     gui.appendChild(s);

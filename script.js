@@ -1,8 +1,7 @@
-// Fun Assistant - Complete Script with All Features
 (function() {
-  if(document.getElementById("funGuiBox")) document.getElementById("funGuiBox").remove();
+  if(document.getElementById("pixelGuiBox")) document.getElementById("pixelGuiBox").remove();
   var gui = document.createElement("div");
-  gui.id = "funGuiBox";
+  gui.id = "pixelGuiBox";
   gui.style.cssText = "position:fixed;top:50px;right:50px;width:360px;background:#1e1e2f;color:white;font-family:sans-serif;z-index:999999;padding:12px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,0.5);";
   document.body.appendChild(gui);
 
@@ -1804,7 +1803,7 @@
     var h = document.createElement("div");
     h.style.cssText = "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px";
     var ti = document.createElement("strong");
-    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : "🌟 Fun Assistant";
+    ti.textContent = pt === "owner" ? "🔑 Owner Panel" : pt === "mod" ? "🛡️ Mod Panel" : "🌟 Pixel Panel";
     h.appendChild(ti);
     if(userRole !== "normal") {
       var t = createButton("Switch Panel", function() { togglePanel(); });
